@@ -20,7 +20,7 @@ window.PORTFOLIO = {
     about: [
       "Sou analista de dados e consultor em BI, formado em Tecnologia da Informação pela Estácio. Atuo em todo o ciclo do dado: extração na origem, tratamento e validação em Python e SQL, modelagem semântica e entrega de dashboards em Power BI. Hoje sou o analista de dados da ALS Logística, responsável por análise, engenharia e governança de dados.",
       "Em paralelo, presto consultoria e desenvolvo projetos para outras empresas: diagnóstico do cenário de dados, definição de indicadores, arquitetura de BI e implantação de pipelines e painéis, sempre com foco em entregar algo que o time realmente use.",
-      "Na ES Logistics, orquestrei pipelines com mais de 360 mil registros, automatizei processos que somam mais de 500 horas de trabalho manual e reduzi o tempo de deploy em 99% em mais de 70 repositórios. Também implantei, migrei e administrei os bancos de dados e o servidor da empresa. Também desenvolvi soluções de IA generativa, como chatbots com busca vetorial (RAG) para diversas áreas de negócio da empresa."
+      "Na ES Logistics, orquestrei pipelines com mais de 360 mil registros, automatizei processos que eliminaram mais de 500 horas de trabalho manual por mês e reduzi o tempo de deploy em 99% em mais de 70 repositórios. Implantei, migrei e administrei os bancos PostgreSQL e o servidor da empresa, e desenvolvi soluções de IA generativa, como chatbots com busca vetorial (RAG) para diversas áreas de negócio da empresa."
     ],
     facts: [
       ["Formação", "Tecnologia da Informação · Estácio"],
@@ -31,13 +31,10 @@ window.PORTFOLIO = {
     ],
     stats: [
       { to: 360, prefix: "", suffix: "k+", label: "registros em pipelines" },
-      { to: 500, prefix: "", suffix: "h+", label: "de trabalho manual automatizadas" },
+      { to: 500, prefix: "", suffix: "h/mês", label: "de trabalho manual automatizadas" },
       { to: 99, prefix: "−", suffix: "%", label: "no tempo de deploy" }
     ]
   },
-
-  /* Contador de visitas: crie uma conta grátis em goatcounter.com e coloque aqui o código escolhido. */
-  analytics: { goatcounter: "" },
 
   services: [
     {
@@ -281,23 +278,23 @@ window.PORTFOLIO = {
       visual: "hours",
       company: "ES Logistics",
       area: "Automação",
-      title: "Mais de 500 horas de trabalho manual automatizadas",
-      metric: { to: 500, prefix: "", suffix: "h+", label: "automatizadas" },
+      title: "Mais de 500 horas por mês de trabalho manual automatizadas",
+      metric: { to: 500, prefix: "", suffix: "h/mês", label: "de trabalho manual automatizadas" },
       context: "Rotinas operacionais e de servidores eram executadas à mão todos os dias, consumindo horas das equipes em tarefas repetitivas e sujeitas a erro.",
       action: "Mapeei os processos mais repetitivos e automatizei com Python, rotinas agendadas e integrações entre sistemas.",
-      result: "Mais de 500 horas de trabalho manual eliminadas, com as equipes livres para atividades de análise e atendimento.",
+      result: "Mais de 500 horas de trabalho manual eliminadas todo mês, com as equipes livres para atividades de análise e atendimento.",
       tags: ["Python", "Automação", "APIs REST", "Linux"]
     },
     {
       visual: "monitor",
       company: "ES Logistics",
-      area: "Banco de dados · Infraestrutura",
+      area: "PostgreSQL · Infraestrutura",
       title: "Bancos de dados e servidor sob controle",
       metric: { to: 24, prefix: "", suffix: "/7", label: "de monitoramento" },
-      context: "A empresa precisava de bancos de dados novos e da migração de uma base existente. Com o tempo, o servidor começou a ficar lento sem uma causa aparente.",
-      action: "Implantei um banco de dados, migrei outro e passei a administrar os dois. Implementei monitoramento com Netdata e, pelas métricas, identifiquei acúmulo excessivo de cache como causa da lentidão.",
+      context: "A empresa precisava de um banco de dados novo e da migração de uma base PostgreSQL existente. Com o tempo, o servidor começou a ficar lento sem uma causa aparente.",
+      action: "Implantei um banco PostgreSQL, migrei a outra base de PostgreSQL para PostgreSQL e passei a administrar os dois. Implementei monitoramento com Netdata e, pelas métricas, identifiquei acúmulo excessivo de cache como causa da lentidão.",
       result: "Corrigi o problema de cache e o servidor voltou ao desempenho normal. O monitoramento ficou ativo para antecipar os próximos gargalos.",
-      tags: ["Banco de dados", "Migração", "Netdata", "Linux"]
+      tags: ["PostgreSQL", "Migração", "Netdata", "Linux"]
     }
   ],
 
@@ -358,8 +355,8 @@ window.PORTFOLIO = {
           text: "Referência técnica em DevOps. Cuidei da infraestrutura em nuvem, da automação de deploys e de sistemas para importação e exportação marítima.",
           bullets: [
             "Deploy de 30 min para 20 s (−99%) em mais de 70 repositórios com GitHub Actions.",
-            "Mais de 500 horas de trabalho manual automatizadas em processos e servidores.",
-            "Implantação, migração e administração de bancos de dados, com monitoramento do servidor via Netdata.",
+            "Mais de 500 horas por mês de trabalho manual automatizadas em processos e servidores.",
+            "Implantação, migração e administração de bancos PostgreSQL, com monitoramento do servidor via Netdata.",
             "Administração do Azure e dos ambientes do time, padronizados com Docker."
           ],
           tags: ["GitHub Actions", "Azure", "Docker", "Python", "React"]

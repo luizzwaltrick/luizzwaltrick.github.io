@@ -439,7 +439,7 @@
         const cells = Array.from({ length: 50 }, (_, i) => `<i style="--i:${i}"></i>`).join("");
         return `
           <div class="cv cv--hours">
-            <div class="cv__legend"><span><b class="is-manual"></b>manual</span><span><b class="is-auto"></b>automatizado</span><em>cada bloco = 10 h</em></div>
+            <div class="cv__legend"><span><b class="is-manual"></b>manual</span><span><b class="is-auto"></b>automatizado</span><em>cada bloco = 10 h por mês</em></div>
             <div class="cv__grid">${cells}</div>
           </div>`;
       }
@@ -549,26 +549,6 @@
   ].filter(Boolean).join("");
 
   $("#year").textContent = new Date().getFullYear();
-
-  /* ---------- Contador de visitas (GoatCounter) ---------- */
-  const gc = data.analytics && data.analytics.goatcounter;
-  if (gc && !/^(localhost|127\.)/.test(location.hostname) && location.protocol.startsWith("http")) {
-    const sc = document.createElement("script");
-    sc.async = true;
-    sc.src = "https://gc.zgo.at/count.js";
-    sc.dataset.goatcounter = `https://${gc}.goatcounter.com/count`;
-    document.body.append(sc);
-    // Total público de visitas no rodapé (exige "Allow adding visitor counts" ligado no GoatCounter).
-    fetch(`https://${gc}.goatcounter.com/counter/TOTAL.json`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        if (!j || !j.count) return;
-        const el = $("#visits");
-        el.textContent = `${j.count} visitas`;
-        el.hidden = false;
-      })
-      .catch(() => {});
-  }
 
   /* ---------- Menu mobile ---------- */
   const toggle = $(".nav__toggle");

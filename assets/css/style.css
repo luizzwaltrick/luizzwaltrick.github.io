@@ -300,7 +300,6 @@ p { margin: 0; }
 .footer__inner { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .footer a:hover { color: var(--text); }
 .footer__top { font-weight: 500; }
-.footer__visits { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
 
 
 /* ---------- Barra de progresso de leitura ---------- */
