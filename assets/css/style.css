@@ -156,15 +156,7 @@ p { margin: 0; }
 
 .about { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: start; }
 .about .section__head { margin-bottom: 0; }
-.about__body { display: flex; flex-direction: column; gap: 28px; }
 .about__text p { color: #cbd5e1; font-size: 1.08rem; }
-.facts { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-.facts div { background: var(--surface); padding: 16px 20px; transition: background .25s; }
-.facts div:hover { background: var(--surface-2); }
-.facts div:last-child:nth-child(odd) { grid-column: 1 / -1; }
-.facts dt { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); }
-.facts dd { margin: 4px 0 0; font-weight: 600; color: var(--text); }
-@media (max-width: 560px) { .facts { grid-template-columns: 1fr; } }
 .about__text p + p { margin-top: 18px; }
 
 .grid { display: grid; gap: 20px; }

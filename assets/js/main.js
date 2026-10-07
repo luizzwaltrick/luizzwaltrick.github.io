@@ -95,7 +95,6 @@
   /* ---------- Perfil ---------- */
   $$("[data-bind]").forEach((el) => { el.textContent = p[el.dataset.bind] || ""; });
   $("#about-text").innerHTML = p.about.map((t) => `<p>${esc(t)}</p>`).join("");
-  $("#facts").innerHTML = (p.facts || []).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
 
   /* ---------- Hero: texto rotativo (efeito digitação) ---------- */
   const typed = $("#typed");

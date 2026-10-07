@@ -18,16 +18,10 @@ window.PORTFOLIO = {
     codewars: "https://www.codewars.com/users/LuizzWaltrick",
     cv: "", // ex.: "assets/cv-aldory-waltrick.pdf"
     about: [
-      "Sou analista de dados e consultor em BI, formado em Tecnologia da Informação pela Estácio. Atuo em todo o ciclo do dado: extração na origem, tratamento e validação em Python e SQL, modelagem semântica e entrega de dashboards em Power BI. Hoje sou o analista de dados da ALS Logística, responsável por análise, engenharia e governança de dados.",
+      "Sou analista de dados e consultor em BI, formado em Tecnologia da Informação. Atuo em todo o ciclo do dado: extração na origem, tratamento e validação em Python e SQL, modelagem semântica e entrega de dashboards em Power BI. Hoje sou o analista de dados da ALS Logística, responsável por análise, engenharia e governança de dados.",
       "Em paralelo, presto consultoria e desenvolvo projetos para outras empresas: diagnóstico do cenário de dados, definição de indicadores, arquitetura de BI e implantação de pipelines e painéis, sempre com foco em entregar algo que o time realmente use.",
-      "Na ES Logistics, orquestrei pipelines com mais de 360 mil registros, automatizei processos que eliminaram mais de 500 horas de trabalho manual por mês e reduzi o tempo de deploy em 99% em mais de 70 repositórios. Implantei, migrei e administrei os bancos PostgreSQL e o servidor da empresa, e desenvolvi soluções de IA generativa, como chatbots com busca vetorial (RAG) para diversas áreas de negócio da empresa."
-    ],
-    facts: [
-      ["Formação", "Tecnologia da Informação · Estácio"],
-      ["Atuação", "Consultoria e projetos sob demanda"],
-      ["Inglês", "Avançado · C1 (EF SET)"],
-      ["Certificação", "Google Cybersecurity Professional"],
-      ["Base", "Itajaí, SC · atendimento remoto ou presencial"]
+      "Na ES Logistics, orquestrei pipelines com mais de 360 mil registros, automatizei processos que eliminaram mais de 500 horas de trabalho manual por mês e reduzi o tempo de deploy em 99% em mais de 70 repositórios. Implantei, migrei e administrei os bancos PostgreSQL e o servidor da empresa, e desenvolvi soluções de IA generativa, como chatbots com busca vetorial (RAG) para diversas áreas de negócio da empresa.",
+      "Tenho inglês avançado e certificações em cibersegurança, o que ajuda tanto no contato com clientes e parceiros de fora quanto no cuidado com o acesso e a proteção dos dados."
     ],
     stats: [
       { to: 360, prefix: "", suffix: "k+", label: "registros em pipelines" },
