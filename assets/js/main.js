@@ -19,6 +19,7 @@
     chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
     db: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
     check: '<path d="M9 12l2 2 4-4"/><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/>',
+    compass: '<circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2.1 6.3-6.3 2.1 2.1-6.3z"/>',
     spark: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
     code: '<path d="M8 6l-6 6 6 6M16 6l6 6-6 6M14 4l-4 16"/>',
     server: '<rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01"/>',
@@ -40,9 +41,61 @@
     ? `https://wa.me/${p.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(p.whatsappMessage || "")}`
     : "";
 
+  /* ---------- Recarregar sempre volta ao início ---------- */
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  const initialHash = location.hash;
+  if (initialHash) history.replaceState(null, "", location.pathname + location.search);
+  window.scrollTo(0, 0);
+  const toTop = () => window.scrollTo(0, 0);
+  window.addEventListener("pageshow", toTop);
+  window.addEventListener("load", () => { toTop(); setTimeout(toTop, 0); setTimeout(toTop, 120); });
+  // Se a página abriu com #âncora, o navegador ainda pode pular para ela logo depois do load.
+  if (initialHash) {
+    const until = performance.now() + 800;
+    const guard = () => { if (window.scrollY !== 0) toTop(); if (performance.now() < until) requestAnimationFrame(guard); };
+    requestAnimationFrame(guard);
+  }
+
+  /* ---------- Rolagem animada para as âncoras ---------- */
+  // Feita em JS para funcionar mesmo quando o sistema desliga a rolagem suave do navegador.
+  let scrollAnim = 0;
+  const smoothTo = (y) => {
+    cancelAnimationFrame(scrollAnim);
+    const start = window.scrollY;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const end = Math.max(0, Math.min(max, y));
+    const dist = end - start;
+    if (Math.abs(dist) < 2) return;
+    const dur = Math.min(1400, Math.max(550, Math.abs(dist) * 0.45));
+    const t0 = performance.now();
+    const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / dur);
+      window.scrollTo(0, start + dist * ease(k));
+      if (k < 1) scrollAnim = requestAnimationFrame(step);
+    };
+    scrollAnim = requestAnimationFrame(step);
+  };
+  const stopScrollAnim = () => cancelAnimationFrame(scrollAnim);
+  window.addEventListener("wheel", stopScrollAnim, { passive: true });
+  window.addEventListener("touchstart", stopScrollAnim, { passive: true });
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute("href");
+    if (id === "#") return;
+    e.preventDefault();
+    if (id === "#top") { smoothTo(0); return; }
+    const target = document.querySelector(id);
+    if (!target) return;
+    const navH = document.querySelector(".nav").offsetHeight;
+    smoothTo(target.getBoundingClientRect().top + window.scrollY - navH + 1);
+  });
+
   /* ---------- Perfil ---------- */
   $$("[data-bind]").forEach((el) => { el.textContent = p[el.dataset.bind] || ""; });
   $("#about-text").innerHTML = p.about.map((t) => `<p>${esc(t)}</p>`).join("");
+  $("#facts").innerHTML = (p.facts || []).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
   document.title = `${p.name} · ${p.role}`;
 
   /* ---------- Hero: texto rotativo (efeito digitação) ---------- */
@@ -377,36 +430,6 @@
       </div>
     </li>`).join("");
 
-  /* ---------- Formação e certificações ---------- */
-  const EDU_ICON = '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>';
-  const CERT_ICON = '<circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/>';
-  const svgIcon = (d) => `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-  $("#education").innerHTML = `
-    <div class="edu__col">
-      <h3>Graduação</h3>
-      ${(data.education || []).map((e) => `
-        <article class="edu__card draw reveal">
-          <div class="edu__badge">${svgIcon(EDU_ICON)}</div>
-          <div>
-            <h4>${esc(e.title)}</h4>
-            <p>${esc(e.degree)} · ${esc(e.school)}</p>
-            <span class="edu__period">${esc(e.period)}</span>
-            ${e.tags && e.tags.length ? tags(e.tags) : ""}
-          </div>
-        </article>`).join("")}
-    </div>
-    <div class="edu__col">
-      <h3>Certificações</h3>
-      <ul class="cert">
-        ${(data.certifications || []).map((c) => `
-          <li class="draw reveal">
-            <span class="cert__icon">${svgIcon(CERT_ICON)}</span>
-            <div><strong>${esc(c.title)}</strong><span>${esc(c.issuer)}</span></div>
-            <em>${esc(c.year || "")}</em>
-          </li>`).join("")}
-      </ul>
-    </div>`;
-
   /* ---------- Stack ---------- */
   $("#stack-list").innerHTML = Object.entries(data.stack).map(([group, items]) => `
     <div class="card stack spot draw reveal">
@@ -525,8 +548,10 @@
       const cont = $(".container").getBoundingClientRect();
       const x = Math.max(28, cont.left - mr.left - 44);
       const kickers = $$("main .kicker");
-      let d = `M ${x} 0`;
-      let prevY = 0;
+      const mq = $("#marquee");
+      const startY = mq ? mq.getBoundingClientRect().bottom - mr.top + 24 : 0;
+      let d = `M ${x} ${startY}`;
+      let prevY = startY;
       dots.forEach((n) => n.remove());
       dots = kickers.map((k, i) => {
         const r = k.getBoundingClientRect();
@@ -546,14 +571,26 @@
       path.style.strokeDasharray = len;
       draw();
     };
+    // A linha persegue o ponto de leitura com suavização, então desenha e "apaga" de forma contínua.
+    let target = 0, current = 0, raf = 0;
+    const lengthAt = (reach) => {
+      let lo = 0, hi = len;
+      for (let i = 0; i < 18; i++) { const mid = (lo + hi) / 2; if (path.getPointAtLength(mid).y < reach) lo = mid; else hi = mid; }
+      return lo;
+    };
+    const tick = () => {
+      current += (target - current) * 0.09;
+      if (Math.abs(target - current) < 0.5) current = target;
+      path.style.strokeDashoffset = len - current;
+      const tip = path.getPointAtLength(current);
+      dots.forEach((c) => c.classList.toggle("is-on", Number(c.dataset.y) <= tip.y + 1));
+      raf = current === target ? 0 : requestAnimationFrame(tick);
+    };
     const draw = () => {
       if (!len) return;
       const mr = $("#main").getBoundingClientRect();
-      const reach = window.innerHeight * 0.6 - mr.top; // até onde a linha já chegou (em px dentro do main)
-      let lo = 0, hi = len;
-      for (let i = 0; i < 18; i++) { const mid = (lo + hi) / 2; if (path.getPointAtLength(mid).y < reach) lo = mid; else hi = mid; }
-      path.style.strokeDashoffset = len - lo;
-      dots.forEach((c) => c.classList.toggle("is-on", Number(c.dataset.y) < reach));
+      target = lengthAt(window.innerHeight * 0.6 - mr.top);
+      if (!raf) raf = requestAnimationFrame(tick);
     };
     window.addEventListener("scroll", draw, { passive: true });
     window.addEventListener("resize", layout);
@@ -562,7 +599,7 @@
   }
 
   /* ---------- Animações de entrada (com escalonamento) ---------- */
-  $$(".grid, .timeline, .dash-list, .timeline__roles, .cert").forEach((g) => {
+  $$(".grid, .timeline, .dash-list, .timeline__roles").forEach((g) => {
     [...g.children].forEach((c, i) => c.style.setProperty("--stagger", `${(i % 6) * 90}ms`));
   });
 

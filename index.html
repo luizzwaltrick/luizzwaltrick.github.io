@@ -20,7 +20,7 @@
   <div class="progress" id="progress" aria-hidden="true"></div>
   <header class="nav" id="top">
     <div class="container nav__inner">
-      <a href="#top" class="nav__brand"><span class="nav__logo" aria-hidden="true"></span>aldory<b>waltrick</b></a>
+      <a href="#top" class="nav__brand" aria-label="Aldory Waltrick, voltar ao início"><span class="nav__mark" aria-hidden="true">AW</span><span class="nav__name">Aldory Waltrick<small>Dados · BI · Consultoria</small></span></a>
       <button class="nav__toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links">
         <span></span><span></span>
       </button>
@@ -29,7 +29,6 @@
         <a href="#bis">BIs</a>
         <a href="#projetos">Projetos</a>
         <a href="#experiencia">Experiência</a>
-        <a href="#formacao">Formação</a>
         <a href="#contato" class="btn btn--small">Contato</a>
       </nav>
     </div>
@@ -45,7 +44,7 @@
       <div class="hero__orb hero__orb--b" aria-hidden="true"></div>
       <div class="container hero__inner">
         <div class="hero__text reveal">
-          <p class="status"><span class="dot"></span><span>Disponível para novos projetos · <span data-bind="location"></span></span></p>
+          <p class="status"><span class="dot"></span><span><span data-bind="availability"></span> · <span data-bind="location"></span></span></p>
           <h1><span class="split" data-bind="name"></span><br><span class="grad grad--anim" data-bind="role"></span></h1>
           <p class="hero__typed mono" aria-live="polite"><span class="hero__prompt">$</span> <span id="typed"></span><span class="caret" aria-hidden="true"></span></p>
           <p class="hero__lead" data-bind="headline"></p>
@@ -91,7 +90,10 @@
           <p class="kicker reveal"><span class="kicker__n">01</span><span class="kicker__line"></span>Sobre</p>
           <h2 class="split-title">Dados de ponta a ponta</h2>
         </div>
-        <div class="about__text reveal" id="about-text"></div>
+        <div class="about__body">
+          <div class="about__text reveal" id="about-text"></div>
+          <dl class="facts reveal" id="facts"></dl>
+        </div>
       </div>
     </section>
 
@@ -101,7 +103,7 @@
         <div class="section__head">
           <p class="kicker reveal"><span class="kicker__n">02</span><span class="kicker__line"></span>Serviços</p>
           <h2 class="split-title">Como posso ajudar</h2>
-          <p class="section__sub">Meu foco é dados e desenvolvimento. Quando o projeto pede, também cuido da infraestrutura e da publicação.</p>
+          <p class="section__sub">Atendo empresas em projetos fechados e em consultoria contínua. O foco é dados e BI e, quando o projeto pede, também cuido da infraestrutura e da publicação.</p>
         </div>
         <div class="grid grid--3" id="services"></div>
       </div>
@@ -142,22 +144,11 @@
       </div>
     </section>
 
-    <!-- FORMAÇÃO -->
-    <section class="section section--alt" id="formacao">
-      <div class="container">
-        <div class="section__head">
-          <p class="kicker reveal"><span class="kicker__n">06</span><span class="kicker__line"></span>Formação</p>
-          <h2 class="split-title">Formação e certificações</h2>
-        </div>
-        <div class="edu" id="education"></div>
-      </div>
-    </section>
-
     <!-- STACK -->
     <section class="section" id="stack">
       <div class="container">
         <div class="section__head">
-          <p class="kicker reveal"><span class="kicker__n">07</span><span class="kicker__line"></span>Stack</p>
+          <p class="kicker reveal"><span class="kicker__n">06</span><span class="kicker__line"></span>Stack</p>
           <h2 class="split-title">Ferramentas</h2>
         </div>
         <div class="grid grid--4" id="stack-list"></div>
@@ -168,9 +159,9 @@
     <section class="section contact" id="contato">
       <div class="container contact__inner">
         <div class="section__head section__head--center">
-          <p class="kicker reveal"><span class="kicker__n">08</span><span class="kicker__line"></span>Contato</p>
+          <p class="kicker reveal"><span class="kicker__n">07</span><span class="kicker__line"></span>Contato</p>
           <h2 class="split-title">Vamos conversar</h2>
-          <p class="section__sub">Se você precisa de um BI, de um pipeline de dados, de automação ou de um site, me chama no WhatsApp ou no LinkedIn.</p>
+          <p class="section__sub">Para projetos, consultoria ou uma conversa sobre o cenário de dados da sua empresa, me chame no WhatsApp ou no LinkedIn.</p>
         </div>
         <div class="contact__links reveal" id="contact-links"></div>
       </div>
@@ -180,7 +171,7 @@
   <footer class="footer">
     <div class="container footer__inner">
       <span>© <span id="year"></span> <span data-bind="name"></span></span>
-      <a href="#top" class="mono">Voltar ao topo ↑</a>
+      <a href="#top" class="footer__top">Voltar ao topo ↑</a>
     </div>
   </footer>
 

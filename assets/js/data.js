@@ -7,8 +7,9 @@ window.PORTFOLIO = {
     name: "Aldory Waltrick",
     role: "Dados, BI & Engenharia",
     rotating: ["Engenharia de Dados", "Business Intelligence", "Power BI e SQL", "DevOps e Cloud", "IA Generativa"],
-    headline: "Monto pipelines em Python e Airflow e entrego dashboards em Power BI que as áreas usam no dia a dia para decidir.",
-    location: "Itajaí, SC · presencial, híbrido ou remoto",
+    headline: "Ajudo empresas a organizar seus dados e transformar informação em decisão, com pipelines em Python e Airflow, dashboards em Power BI e consultoria em BI.",
+    location: "Itajaí, SC",
+    availability: "Disponível para projetos e consultoria",
     email: "",
     whatsapp: "5547991787079", // DDI + DDD + número, só dígitos
     whatsappMessage: "Olá, Aldory! Vi seu portfólio e quero conversar sobre um projeto.",
@@ -17,9 +18,16 @@ window.PORTFOLIO = {
     codewars: "https://www.codewars.com/users/LuizzWaltrick",
     cv: "", // ex.: "assets/cv-aldory-waltrick.pdf"
     about: [
-      "Sou analista de dados em Itajaí e trabalho com o ciclo inteiro: busco o dado na origem, trato e valido em Python e SQL, modelo e entrego o painel. Hoje sou o único analista de dados da ALS Logística, então cuido de análise, engenharia e governança ao mesmo tempo.",
-      "Na ES Logistics, orquestrei pipelines que passaram de 360 mil registros, automatizei rotinas que devolveram cerca de 400 horas por mês para a operação e reduzi o deploy de 30 minutos para 20 segundos em mais de 60 repositórios.",
-      "Também venho do desenvolvimento e do DevOps. Já montei esteiras de CI/CD, administrei ambientes no Azure com Docker, escrevi crawlers e coloquei no ar chatbots com busca vetorial (RAG) para RH e Qualidade."
+      "Sou analista de dados e consultor em BI, formado em Tecnologia da Informação pela Estácio. Atuo em todo o ciclo do dado: extração na origem, tratamento e validação em Python e SQL, modelagem semântica e entrega de dashboards em Power BI. Hoje sou o analista de dados da ALS Logística, responsável por análise, engenharia e governança de dados.",
+      "Em paralelo, presto consultoria e desenvolvo projetos para outras empresas: diagnóstico do cenário de dados, definição de indicadores, arquitetura de BI e implantação de pipelines e painéis, sempre com foco em entregar algo que o time realmente use.",
+      "Na ES Logistics, orquestrei pipelines com mais de 360 mil registros, automatizei processos que geraram uma economia estimada de 400 horas por mês e reduzi o tempo de deploy em 99% em mais de 60 repositórios. Também desenvolvi soluções de IA generativa, como chatbots com busca vetorial (RAG) para diversas áreas de negócio da empresa."
+    ],
+    facts: [
+      ["Formação", "Tecnologia da Informação · Estácio"],
+      ["Atuação", "Consultoria e projetos sob demanda"],
+      ["Inglês", "Avançado · C1 (EF SET)"],
+      ["Certificação", "Google Cybersecurity Professional"],
+      ["Base", "Itajaí, SC · atendimento remoto ou presencial"]
     ],
     stats: [
       { to: 360, prefix: "", suffix: "k+", label: "registros em pipelines" },
@@ -30,27 +38,27 @@ window.PORTFOLIO = {
 
   services: [
     {
+      icon: "compass",
+      title: "Consultoria em dados e BI",
+      text: "Diagnóstico do cenário atual, definição de indicadores, arquitetura de dados e boas práticas de governança. Também acompanho o time interno na evolução dos painéis.",
+      tags: ["Diagnóstico", "Arquitetura", "Governança", "Mentoria"]
+    },
+    {
       icon: "chart",
       title: "Dashboards e BI",
-      text: "Painéis em Power BI com visuais personalizados e tema próprio. Começo pelo levantamento com a área e só depois desenho o modelo e as telas.",
+      text: "Painéis em Power BI com visuais personalizados e identidade própria, do levantamento de requisitos com a área até a publicação.",
       tags: ["Power BI", "DAX", "pbiviz", "Tableau", "Metabase"]
     },
     {
       icon: "db",
       title: "Engenharia de dados",
-      text: "Pipelines de extração e carga a partir de APIs, bancos e sites, orquestrados no Airflow e prontos para rodar sem ninguém olhando.",
-      tags: ["Python", "Airflow", "dbt", "Polars", "Spark"]
-    },
-    {
-      icon: "check",
-      title: "SQL e qualidade de dados",
-      text: "Consultas de consolidação, como um DRE unificado, e rotinas de diagnóstico para que o número do painel bata com o do financeiro.",
-      tags: ["SQL Server", "PostgreSQL", "Governança"]
+      text: "Pipelines de extração, transformação e carga orquestrados no Airflow, com validação e consultas de consolidação em SQL para que o número do painel bata com o do financeiro.",
+      tags: ["Python", "Airflow", "SQL Server", "PostgreSQL", "dbt"]
     },
     {
       icon: "spark",
       title: "IA generativa e RAG",
-      text: "Chatbots que respondem com base nos documentos da empresa, usando busca vetorial, para tirar dúvidas internas mais rápido.",
+      text: "Chatbots e assistentes que respondem com base nos documentos da empresa, usando busca vetorial, para diferentes áreas de negócio.",
       tags: ["RAG", "LLM", "ChromaDB", "Vector Search"]
     },
     {
@@ -62,7 +70,7 @@ window.PORTFOLIO = {
     {
       icon: "code",
       title: "Sistemas e sites",
-      text: "Integrações entre sistemas legados, APIs, crawlers e sites institucionais, em Python, React ou no que o projeto pedir.",
+      text: "Integrações entre sistemas legados, APIs, automações, crawlers e sites institucionais, em Python, React ou no que o projeto pedir.",
       tags: ["Python", "React", "APIs REST", "Web Scraping"]
     }
   ],
@@ -255,7 +263,7 @@ window.PORTFOLIO = {
     },
     {
       title: "Chatbots com RAG",
-      text: "Assistentes para RH e Qualidade que respondem com base nos documentos internos, usando busca vetorial.",
+      text: "Assistentes que respondem com base nos documentos internos, usando busca vetorial, adotados por diversas áreas de negócio da empresa.",
       tags: ["RAG", "LLM", "ChromaDB", "Python"],
       link: ""
     },
@@ -321,7 +329,7 @@ window.PORTFOLIO = {
           bullets: [
             "Pipelines de dados críticos com mais de 360 mil registros.",
             "Automação de processos operacionais, com economia estimada de 300 horas por mês.",
-            "Soluções de IA generativa (RAG, LLM e banco vetorial) para consultas internas."
+            "Soluções de IA generativa (RAG, LLM e banco vetorial) para agilizar consultas internas."
           ],
           tags: ["Airflow", "PostgreSQL", "RAG", "CI/CD"]
         },
@@ -331,7 +339,7 @@ window.PORTFOLIO = {
           text: "Desenvolvimento e integração de sistemas com Python, SQL, APIs REST, ChromaDB e automação.",
           bullets: [
             "Liderança técnica na integração de dados logísticos e APIs entre sistemas legados.",
-            "Chatbots com busca vetorial (RAG) para RH e Qualidade.",
+            "Chatbots com busca vetorial (RAG) para diversas áreas de negócio da empresa.",
             "Crawlers e extração de dados de mercado para o time de Procurement."
           ],
           tags: ["Python", "SQL", "ChromaDB", "Web Crawling"]
@@ -345,22 +353,6 @@ window.PORTFOLIO = {
         }
       ]
     }
-  ],
-
-  education: [
-    {
-      title: "Tecnologia da Informação",
-      degree: "Curso Superior de Tecnologia (CST)",
-      school: "Estácio",
-      period: "2025 a 2027",
-      tags: ["SQL", "Desenvolvimento de software"]
-    }
-  ],
-
-  certifications: [
-    { title: "Google Cybersecurity Professional", issuer: "Google", year: "", tags: ["Linux", "Cybersecurity"] },
-    { title: "EF SET English Certificate · C1 Advanced", issuer: "EF SET", year: "", tags: ["Inglês"] },
-    { title: "Python Advanced", issuer: "Curso em Vídeo", year: "2022", tags: ["Python", "Linux"] }
   ],
 
   stack: {
