@@ -5,7 +5,8 @@
   const p = data.profile;
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // As animações ficam sempre ligadas: máquinas corporativas costumam desligar as do sistema operacional.
+  const reduceMotion = false;
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({
@@ -155,7 +156,7 @@
 
   /* ---------- Serviços ---------- */
   $("#services").innerHTML = data.services.map((s) => `
-    <article class="card service spot reveal">
+    <article class="card service spot draw reveal">
       <div class="service__icon">${icon(s.icon)}</div>
       <h3>${esc(s.title)}</h3>
       <p>${esc(s.text)}</p>
@@ -163,9 +164,36 @@
     </article>`).join("");
 
   /* ---------- Marquee de tecnologias ---------- */
-  const allTech = [...new Set(Object.values(data.stack).flat())];
-  const half = allTech.map((t) => `<span>${esc(t)}</span>`).join("");
-  $("#marquee").innerHTML = `<div class="marquee__track">${half}${half}</div>`;
+  const groups = Object.values(data.stack);
+  const DOTS = ["#38bdf8", "#a78bfa", "#34d399", "#fbbf24"];
+  const chip = (t, gi) => `<span class="marquee__item" style="--c:${DOTS[gi % DOTS.length]}"><i></i>${esc(t)}</span>`;
+  const rowA = groups.flatMap((g, gi) => g.slice(0, Math.ceil(g.length / 2)).map((t) => chip(t, gi))).join("");
+  const rowB = groups.flatMap((g, gi) => g.slice(Math.ceil(g.length / 2)).map((t) => chip(t, gi))).join("");
+  $("#marquee").innerHTML =
+    `<div class="marquee__row marquee__row--a">${rowA.repeat(4)}</div><div class="marquee__row marquee__row--b">${rowB.repeat(4)}</div>`;
+  {
+    // Movimento contínuo; acelera enquanto a página rola e desacelera quando o mouse está em cima.
+    const rows = [[$(".marquee__row--a"), -1, 0], [$(".marquee__row--b"), 1, 0]];
+    let lastY = window.scrollY, boost = 0, hover = false;
+    $("#marquee").addEventListener("pointerenter", () => { hover = true; });
+    $("#marquee").addEventListener("pointerleave", () => { hover = false; });
+    let lastT = performance.now();
+    const loop = (t) => {
+      const dt = Math.min(50, t - lastT); lastT = t;
+      const y = window.scrollY;
+      boost = boost * 0.92 + Math.min(40, Math.abs(y - lastY)) * 0.08;
+      lastY = y;
+      const speed = (hover ? 0.012 : 0.045) * (1 + boost * 0.9);
+      rows.forEach((r) => {
+        const half = r[0].scrollWidth / 2;
+        r[2] = (r[2] + r[1] * speed * dt) % half;
+        const x = r[1] < 0 ? r[2] : r[2] - half;
+        r[0].style.transform = `translate3d(${x}px,0,0)`;
+      });
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
 
   /* ---------- Dashboards ---------- */
   const fmtPreview = (v, pre, suf) =>
@@ -181,15 +209,15 @@
     return `
       <div class="preview">
         <div class="preview__top">
-          <span class="preview__title">${esc(d.title)}</span>
+          <span class="preview__title"><span class="preview__logo"><i></i><i></i><i></i></span>${esc(d.title)}</span>
           <span class="preview__pills"><i></i><i></i><i></i></span>
         </div>
         <div class="preview__kpis">
-          ${pv.kpis.map(([k, v, pre, suf]) => `<div><small>${esc(k)}</small><strong data-v="${v}" data-pre="${esc(pre)}" data-suf="${esc(suf)}">${esc(fmtPreview(v, pre, suf))}</strong></div>`).join("")}
+          ${pv.kpis.map(([k, v, pre, suf], ki) => `<div style="--k:${["#54B5FB", "#00DDFF", "#0B72D7"][ki]}"><small>${esc(k)}</small><strong data-v="${v}" data-pre="${esc(pre)}" data-suf="${esc(suf)}">${esc(fmtPreview(v, pre, suf))}</strong></div>`).join("")}
         </div>
         <div class="preview__body">
           <div class="preview__bars">
-            ${pv.bars.map((v, i) => `<span style="--h:${(v / max) * 100}%;--d:${i * 45}ms"></span>`).join("")}
+            ${pv.bars.map((v, i) => `<span class="${i === pv.bars.length - 1 ? "is-partial" : v === max ? "is-max" : ""}" style="--h:${(v / max) * 100}%;--d:${i * 45}ms"></span>`).join("")}
           </div>
           <div class="preview__side">
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="preview__line" aria-hidden="true">
@@ -208,7 +236,7 @@
   ).join("");
 
   $("#dashboards").innerHTML = data.dashboards.map((d, idx) => `
-    <article class="dash reveal" data-cat="${esc(d.category)}" style="--accent:${esc(d.accent)}">
+    <article class="dash draw reveal" data-cat="${esc(d.category)}">
       <div class="dash__media" role="button" tabindex="0" data-open="${idx}" aria-label="Abrir o BI ${esc(d.title)} em modo interativo">
         <div class="dash__tilt">
           ${previewHTML(d)}
@@ -302,7 +330,7 @@
 
   $("#dashboards").addEventListener("click", (e) => {
     const t = e.target.closest("[data-open]");
-    if (t) window.BI.open(data.dashboards[Number(t.dataset.open)]);
+    if (t) window.Report.open(data.dashboards[Number(t.dataset.open)]);
   });
 
   $("#bi-filters").addEventListener("click", (e) => {
@@ -323,7 +351,7 @@
 
   /* ---------- Projetos ---------- */
   $("#projects").innerHTML = data.projects.map((pr) => `
-    <article class="card project spot reveal">
+    <article class="card project spot draw reveal">
       <h3>${esc(pr.title)}</h3>
       <p>${esc(pr.text)}</p>
       ${tags(pr.tags)}
@@ -337,7 +365,7 @@
       <span class="timeline__meta">${esc(c.meta)}</span>
       <div class="timeline__roles">
         ${c.roles.map((r) => `
-          <div class="role spot">
+          <div class="role spot draw reveal">
             <div class="role__head">
               <h4>${esc(r.role)}</h4>
               ${r.period ? `<span class="mono">${esc(r.period)}</span>` : ""}
@@ -349,9 +377,39 @@
       </div>
     </li>`).join("");
 
+  /* ---------- Formação e certificações ---------- */
+  const EDU_ICON = '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>';
+  const CERT_ICON = '<circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/>';
+  const svgIcon = (d) => `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  $("#education").innerHTML = `
+    <div class="edu__col">
+      <h3>Graduação</h3>
+      ${(data.education || []).map((e) => `
+        <article class="edu__card draw reveal">
+          <div class="edu__badge">${svgIcon(EDU_ICON)}</div>
+          <div>
+            <h4>${esc(e.title)}</h4>
+            <p>${esc(e.degree)} · ${esc(e.school)}</p>
+            <span class="edu__period">${esc(e.period)}</span>
+            ${e.tags && e.tags.length ? tags(e.tags) : ""}
+          </div>
+        </article>`).join("")}
+    </div>
+    <div class="edu__col">
+      <h3>Certificações</h3>
+      <ul class="cert">
+        ${(data.certifications || []).map((c) => `
+          <li class="draw reveal">
+            <span class="cert__icon">${svgIcon(CERT_ICON)}</span>
+            <div><strong>${esc(c.title)}</strong><span>${esc(c.issuer)}</span></div>
+            <em>${esc(c.year || "")}</em>
+          </li>`).join("")}
+      </ul>
+    </div>`;
+
   /* ---------- Stack ---------- */
   $("#stack-list").innerHTML = Object.entries(data.stack).map(([group, items]) => `
-    <div class="card stack spot reveal">
+    <div class="card stack spot draw reveal">
       <h3 class="mono">${esc(group)}</h3>
       ${tags(items)}
     </div>`).join("");
@@ -446,12 +504,69 @@
     });
   }
 
+  /* ---------- Títulos montados palavra por palavra ---------- */
+  $$(".split-title").forEach((el) => {
+    el.innerHTML = el.textContent.trim().split(/\s+/)
+      .map((w, i) => `<span class="w"><span style="--wi:${i}">${esc(w)}</span></span>`).join(" ");
+    el.classList.add("reveal-raw");
+  });
+
+  /* ---------- Linha guia que se desenha com a rolagem ---------- */
+  const sl = $("#scroll-line"), path = $("#scroll-path");
+  if (sl && path) {
+    const NSV = "http://www.w3.org/2000/svg";
+    const defs = document.createElementNS(NSV, "defs");
+    defs.innerHTML = '<linearGradient id="sl-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset=".5" stop-color="#a78bfa"/><stop offset="1" stop-color="#34d399"/></linearGradient>';
+    sl.prepend(defs);
+    let len = 0, dots = [];
+    const layout = () => {
+      const main = $("#main");
+      const mr = main.getBoundingClientRect();
+      const cont = $(".container").getBoundingClientRect();
+      const x = Math.max(28, cont.left - mr.left - 44);
+      const kickers = $$("main .kicker");
+      let d = `M ${x} 0`;
+      let prevY = 0;
+      dots.forEach((n) => n.remove());
+      dots = kickers.map((k, i) => {
+        const r = k.getBoundingClientRect();
+        const y = r.top - mr.top + r.height / 2;
+        const bend = i % 2 ? 14 : -14;
+        d += ` C ${x + bend} ${prevY + (y - prevY) * 0.35}, ${x - bend} ${prevY + (y - prevY) * 0.65}, ${x} ${y}`;
+        prevY = y;
+        const c = document.createElementNS(NSV, "circle");
+        c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 5); c.setAttribute("class", "sl-dot");
+        c.dataset.y = y;
+        sl.append(c);
+        return c;
+      });
+      d += ` L ${x} ${main.offsetHeight - 40}`;
+      path.setAttribute("d", d);
+      len = path.getTotalLength();
+      path.style.strokeDasharray = len;
+      draw();
+    };
+    const draw = () => {
+      if (!len) return;
+      const mr = $("#main").getBoundingClientRect();
+      const reach = window.innerHeight * 0.6 - mr.top; // até onde a linha já chegou (em px dentro do main)
+      let lo = 0, hi = len;
+      for (let i = 0; i < 18; i++) { const mid = (lo + hi) / 2; if (path.getPointAtLength(mid).y < reach) lo = mid; else hi = mid; }
+      path.style.strokeDashoffset = len - lo;
+      dots.forEach((c) => c.classList.toggle("is-on", Number(c.dataset.y) < reach));
+    };
+    window.addEventListener("scroll", draw, { passive: true });
+    window.addEventListener("resize", layout);
+    window.addEventListener("load", layout);
+    setTimeout(layout, 300);
+  }
+
   /* ---------- Animações de entrada (com escalonamento) ---------- */
-  $$(".grid, .timeline, .dash-list").forEach((g) => {
+  $$(".grid, .timeline, .dash-list, .timeline__roles, .cert").forEach((g) => {
     [...g.children].forEach((c, i) => c.style.setProperty("--stagger", `${(i % 6) * 90}ms`));
   });
 
-  const revealEls = $$(".reveal");
+  const revealEls = $$(".reveal, .split-title");
   const statsDone = { v: false };
   const startStats = () => {
     if (statsDone.v) return;
