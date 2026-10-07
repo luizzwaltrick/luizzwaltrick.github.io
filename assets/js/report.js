@@ -16,6 +16,7 @@
   const KPI_COLORS = [C.blueLight, C.cyan, C.blue, C.soft];
   const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
   const W = 1280, H = 720;
+  const PAGES = ["main", "analysis", "detail"];
   const ZOOM = typeof CSS !== "undefined" && CSS.supports && CSS.supports("zoom", "2");
 
   /* ---------------- utilidades ---------------- */
@@ -210,31 +211,55 @@
     const delta = isRate && k.fmt === "pct" ? va - vb : ((va - vb) / Math.abs(vb)) * 100;
     const good = k.lowerIsBetter ? delta <= 0 : delta >= 0;
     const unit = isRate && k.fmt === "pct" ? " p.p." : "%";
-    return { text: `${delta >= 0 ? "▲" : "▼"} ${nf(1).format(Math.abs(delta))}${unit}`, label: `${a.label.split("/")[0]} vs ${b.label.split("/")[0]}`, good };
+    return { text: `${delta >= 0 ? "▲" : "▼"} ${nf(1).format(Math.abs(delta))}${unit}`, label: `vs ${fmt(vb, k.fmt)}`, period: `${a.label} vs ${b.label}`, good };
   }
 
-  function card(title, sub, i, extraClass) {
-    const head = h("div", { class: "rc__head" }, h("h4", { text: title }), sub ? h("small", { text: sub }) : null);
-    return h("section", { class: "rc a-fade " + (extraClass || ""), style: `--i:${i}` }, head);
+  const EXPAND_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+  const COLLAPSE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>';
+  function card(title, sub, i, extraClass, expandable) {
+    const head = h("div", { class: "rc__head" }, h("div", { class: "rc__titles" }, h("h4", { text: title }), sub ? h("small", { text: sub }) : null));
+    const el = h("section", { class: "rc a-fade " + (extraClass || ""), style: `--i:${i}` }, head);
+    if (expandable) {
+      const btn = h("button", { type: "button", class: "rc__expand", "aria-label": "Expandir visual", title: "Expandir" });
+      btn.innerHTML = EXPAND_SVG;
+      btn.addEventListener("click", (e) => { e.stopPropagation(); toggleExpand(el, btn); });
+      head.append(btn);
+    }
+    return el;
+  }
+  function toggleExpand(el, btn) {
+    const on = !el.classList.contains("is-expanded");
+    const pg = el.closest(".pg");
+    pg.querySelectorAll(".rc.is-expanded").forEach((x) => { x.classList.remove("is-expanded"); const b = x.querySelector(".rc__expand"); if (b) b.innerHTML = EXPAND_SVG; });
+    if (on) { el.classList.add("is-expanded"); btn.innerHTML = COLLAPSE_SVG; btn.setAttribute("aria-label", "Recolher visual"); }
+    else btn.setAttribute("aria-label", "Expandir visual");
+    pg.classList.toggle("has-expanded", on);
   }
 
   /* ----- header ----- */
   function header(d, R, M, st) {
     const count = h("strong", { class: "rh__count", text: "0" });
-    const period = h("span", { class: "rh__chip" });
+    const period = h("strong");
+    const idx = PAGES.indexOf(st.page);
+    const navBtn = (dir, label, path) => {
+      const b = h("button", { type: "button", class: "rh__nav", "aria-label": label, title: label, disabled: (dir < 0 ? idx <= 0 : idx >= PAGES.length - 1) ? "" : null });
+      b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
+      b.addEventListener("click", (e) => { e.stopPropagation(); const n = PAGES[idx + dir]; if (n) go(n); });
+      return b;
+    };
     const chips = h("div", { class: "rh__filters" });
     const el = h("header", { class: "rh a-fade", style: "--i:0" },
       h("div", { class: "rh__logo", "aria-hidden": "true" }, h("i"), h("i"), h("i")),
       h("div", { class: "rh__title" }, h("h3", { text: d.title }), h("small", { text: R.subtitle })),
       chips,
-      h("div", { class: "rh__chips" }, period, h("span", { class: "rh__chip" }, count, " " + R.unit),
-        h("span", { class: "rh__chip rh__chip--live" }, h("i"), `Atualizado ${dBR(M.today)} 06:00`)));
+      h("div", { class: "rh__chips" }, h("span", { class: "rh__chip" }, "Período ", period), h("span", { class: "rh__chip rh__chip--count" }, count, " " + R.unit),
+        navBtn(-1, "Página anterior", "M15 18l-6-6 6-6"), navBtn(1, "Próxima página", "M9 18l6-6-6-6")));
     return { el, count, period, chips, last: 0 };
   }
 
   function renderHeader(c) {
     const { R, st, hd } = c;
-    hd.period.textContent = `${dBR(st.from)} a ${dBR(st.to)}`;
+    hd.period.textContent = `${dBR(st.from)} – ${dBR(st.to)}`;
     const n = c.rows.length;
     countTo(hd.count, hd.last, n, "int", 700);
     hd.last = n;
@@ -325,7 +350,7 @@
       if (animate) countTo(valEl, 0, v || 0, k.fmt);
       tipOn(el, () => {
         const mv = kpiOf(R, c.rows.filter((x) => x.mk === M.months[11].key), i);
-        return [k.label, [["Total no filtro", fmt(v, k.fmt, true)], [`${M.months[11].label} (parcial)`, fmt(mv, k.fmt, true)], ["Variação", dl ? `${dl.text} ${dl.label}` : "s/ dado"]]];
+        return [k.label, [["Total no filtro", fmt(v, k.fmt, true)], [`${M.months[11].label} (parcial)`, fmt(mv, k.fmt, true)], ["Variação", dl ? `${dl.text} ${dl.label}` : "s/ dado"], ["Comparação", dl ? dl.period : "s/ dado"]]];
       });
       return el;
     }));
@@ -445,9 +470,9 @@
       return li;
     }));
     const more = all.length > fit ? h("button", {
-      type: "button", class: "rc__link", text: `Ver lista (${all.length})`,
+      type: "button", class: "rc__more", title: "Ver a lista completa na página Detalhe",
       onclick: (e) => { e.stopPropagation(); go("detail"); }
-    }) : null;
+    }, `+ ${all.length - fit} outros`, h("span", { "aria-hidden": "true", text: "›" })) : null;
     c.rankBody.replaceChildren(all.length ? list : h("p", { class: "rc__empty", text: "Nenhum dado no contexto filtrado" }), more);
   }
 
@@ -539,7 +564,7 @@
     const { R, st } = c;
     const cols = colsOf(R);
     const rows = tableRows(c);
-    const limit = st.showAll ? Math.min(rows.length, 500) : (c.fluid ? 12 : 11);
+    const limit = st.showAll ? Math.min(rows.length, 500) : (c.fluid ? 12 : 7);
     const thead = h("thead", null, h("tr", null, cols.map((col) => h("th", {
       class: (col.num ? "num" : "") + (st.sort.key === col.key ? " is-sorted" : ""),
       onclick: (e) => { e.stopPropagation(); st.sort = { key: col.key, dir: st.sort.key === col.key ? -st.sort.dir : (col.num || col.key === "data" ? -1 : 1) }; renderTable(c, true); }
@@ -557,8 +582,8 @@
     const table = h("table", { class: "tb" }, thead, tbody);
     c.tableWrap.replaceChildren(rows.length ? table : h("p", { class: "rc__empty", text: `Nenhum registro no contexto filtrado` }));
     c.tableWrap.classList.toggle("is-all", st.showAll);
-    c.tableMore.textContent = st.showAll ? "Mostrar menos" : `Ver tudo (${nf(0).format(rows.length)})`;
-    c.tableMore.hidden = rows.length <= (c.fluid ? 12 : 11);
+    c.tableMore.replaceChildren(st.showAll ? "Mostrar menos" : "Ver tudo", h("span", { "aria-hidden": "true", text: st.showAll ? "‹" : "›" }));
+    c.tableMore.hidden = rows.length <= (c.fluid ? 12 : 7);
     countTo(c.tableCount, c.tableLast || 0, rows.length, "int", 600);
     c.tableLast = rows.length;
     if (animate) { c.tableCard.classList.remove("is-sweep"); void c.tableCard.offsetWidth; c.tableCard.classList.add("is-sweep"); }
@@ -570,11 +595,11 @@
     const { R } = c;
     c.ticker = h("div", { class: "tk a-fade", style: "--i:1" });
     c.kpiBox = h("div", { class: "kps" });
-    const tCard = card(R.trend.title, "últimos 12 meses · clique na barra para filtrar", 5, "rc--trend");
+    const tCard = card(R.trend.title, "últimos 12 meses · clique na barra para filtrar", 5, "rc--trend", true);
     c.trendBody = h("div", { class: "rc__body" }); tCard.append(c.trendBody);
-    const sCard = card(R.share.title, "top 4 + Outros · clique para filtrar", 6, "rc--share");
+    const sCard = card(R.share.title, "top 4 + Outros · clique para filtrar", 6, "rc--share", true);
     c.shareBody = h("div", { class: "rc__body" }); sCard.append(c.shareBody);
-    const rCard = card(R.ranking.title, "clique para filtrar", 7, "rc--rank");
+    const rCard = card(R.ranking.title, "clique para filtrar", 7, "rc--rank", true);
     c.rankBody = h("div", { class: "rc__body" }); rCard.append(c.rankBody);
     return h("div", { class: "pg pg--main" }, c.hd.el, c.ticker, c.kpiBox, h("div", { class: "pg__row" }, tCard, sCard, rCard));
   }
@@ -587,18 +612,19 @@
     const search = h("input", { type: "search", class: "rf__search", placeholder: "Buscar na tabela…", value: c.st.search });
     search.addEventListener("input", () => { c.st.search = search.value; renderTable(c, true); });
     search.addEventListener("click", (e) => e.stopPropagation());
-    c.tableMore = h("button", { type: "button", class: "rc__link", onclick: (e) => { e.stopPropagation(); c.st.showAll = !c.st.showAll; renderTable(c, true); } });
-    const exp = h("button", { type: "button", class: "pill pill--action", text: "Exportar CSV", onclick: (e) => { e.stopPropagation(); exportCSV(c); } });
-    c.tableCard.querySelector(".rc__head").append(h("span", { class: "tb__count" }, c.tableCount, " no filtro"), search, c.tableMore, exp);
+    c.tableMore = h("button", { type: "button", class: "rc__more rc__more--accent", onclick: (e) => { e.stopPropagation(); c.st.showAll = !c.st.showAll; renderTable(c, true); } });
+    const exp = h("button", { type: "button", class: "rc__csv", text: "⭳ CSV", title: "Exportar o que está na tabela", onclick: (e) => { e.stopPropagation(); exportCSV(c); } });
+    c.tableCard.querySelector(".rc__head").append(h("span", { class: "tb__count" }, c.tableCount, " no filtro"), search, exp);
+    c.tableFoot = h("div", { class: "tb__foot" }, h("span", { class: "tb__hint", text: "Clique numa célula de dimensão para filtrar" }), c.tableMore);
     c.tableWrap = h("div", { class: "tb__wrap" });
-    c.tableCard.append(h("div", { class: "tb__sweep", "aria-hidden": "true" }), c.tableWrap);
+    c.tableCard.append(h("div", { class: "tb__sweep", "aria-hidden": "true" }), c.tableWrap, c.tableFoot);
     return h("div", { class: "pg pg--detail" }, c.hd.el, c.filtersRow, h("div", { class: "pg__split" }, c.listCol, c.tableCard));
   }
 
   /* ----- página de análise ----- */
   function buildAnalysis(c) {
     const { R } = c;
-    const mk = (title, sub, i, cls) => { const el = card(title, sub, i, cls); const body = h("div", { class: "rc__body" }); el.append(body); return [el, body]; };
+    const mk = (title, sub, i, cls) => { const el = card(title, sub, i, cls, true); const body = h("div", { class: "rc__body" }); el.append(body); return [el, body]; };
     const [heat, hb] = mk(`${R.trend.title.split(" por ")[0]} por ${R.dims.f.label.toLowerCase()} e mês`, "intensidade = volume · clique para filtrar", 1, "rc--heat");
     const [vari, vb] = mk(`Variação por ${R.dims.cat.label.toLowerCase()}`, "último mês completo vs anterior", 2, "rc--var");
     const [abc, ab] = mk(`Curva ABC · ${R.dims.ent.label.toLowerCase()}`, "A = até 80% do valor · B = até 95% · C = restante", 3, "rc--abc");
@@ -686,7 +712,7 @@
       tipOn(row, () => [`${i + 1}º · ${x.name}`, [[k.label, fmt(x.v, k.fmt, true)], ["Participação", nf(1).format((x.v / tot) * 100) + "%"], ["Acumulado", nf(1).format(x.cum) + "%"], ["Classe", x.cls]]]);
       return row;
     }));
-    const more = all.length > fitN ? h("button", { type: "button", class: "rc__link", text: `Ver lista (${all.length})`, onclick: (e) => { e.stopPropagation(); go("detail"); } }) : null;
+    const more = all.length > fitN ? h("button", { type: "button", class: "rc__more", title: "Ver a lista completa na página Detalhe", onclick: (e) => { e.stopPropagation(); go("detail"); } }, `+ ${all.length - fitN} outros`, h("span", { "aria-hidden": "true", text: "›" })) : null;
     c.abcBody.replaceChildren(summary, table, more);
   }
 
@@ -841,7 +867,12 @@
   function shell() {
     modal = h("div", { class: "rpt", role: "dialog", "aria-modal": "true", "aria-label": "BI de demonstração" });
     document.body.append(modal);
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("is-open")) close(); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || !modal.classList.contains("is-open")) return;
+      const ex = modal.querySelector(".rc.is-expanded");
+      if (ex) { toggleExpand(ex, ex.querySelector(".rc__expand")); return; }
+      close();
+    });
     window.addEventListener("resize", () => { if (ctx && !ctx.capturing) { const was = ctx.fluid; fit(); if (was !== ctx.fluid) go(ctx.st.page); } });
   }
 

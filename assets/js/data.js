@@ -248,6 +248,19 @@ window.PORTFOLIO = {
     }
   ],
 
+  /* Como trabalho: etapas de um projeto ou consultoria e formatos de contratação. */
+  process: [
+    { title: "Diagnóstico", text: "Uma conversa para entender o negócio, as fontes de dados, os indicadores que importam e onde está a dor hoje.", deliverable: "Mapa do cenário e prioridades" },
+    { title: "Proposta", text: "Escopo, etapas, prazo e investimento por escrito, com o que será entregue em cada fase. Sem surpresa no meio do caminho.", deliverable: "Proposta com escopo e cronograma" },
+    { title: "Construção", text: "Entregas curtas e frequentes. Valido os números com a área antes de cada publicação, para o painel nascer confiável.", deliverable: "Pipelines, modelo e dashboards" },
+    { title: "Entrega e acompanhamento", text: "Publicação, documentação e treinamento de quem vai usar. Depois, acompanho a adoção e ajusto o que for preciso.", deliverable: "Documentação e suporte" }
+  ],
+  engagements: [
+    { title: "Projeto fechado", ideal: "Para uma entrega com começo, meio e fim.", items: ["Escopo e prazo definidos", "Dashboard, pipeline ou migração", "Documentação e repasse ao time"] },
+    { title: "Consultoria mensal", ideal: "Para evoluir os dados da empresa de forma contínua.", items: ["Horas mensais para demandas de dados e BI", "Governança, revisão de modelos e novos painéis", "Acompanhamento próximo das áreas"], featured: true },
+    { title: "Mentoria e treinamento", ideal: "Para quem quer que o próprio time faça.", items: ["Power BI, DAX e modelagem", "Python e SQL para dados", "Boas práticas de versionamento e publicação"] }
+  ],
+
   /*
    * Cases com resultado. "visual" escolhe a animação: deploy | git | hours | monitor.
    */

@@ -401,6 +401,21 @@
     });
   });
 
+  /* ---------- Como trabalho ---------- */
+  $("#steps").innerHTML = (data.process || []).map((st, i) => `
+    <li class="step reveal" style="--s:${i}">
+      <span class="step__n">${String(i + 1).padStart(2, "0")}</span>
+      <h3>${esc(st.title)}</h3>
+      <p>${esc(st.text)}</p>
+      <span class="step__out">${esc(st.deliverable)}</span>
+    </li>`).join("");
+  $("#models").innerHTML = (data.engagements || []).map((m) => `
+    <article class="model draw reveal${m.featured ? " is-featured" : ""}">
+      <h3>${esc(m.title)}</h3>
+      <p>${esc(m.ideal)}</p>
+      <ul>${m.items.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
+    </article>`).join("");
+
   /* ---------- Cases ---------- */
   const caseVisual = (c) => {
     switch (c.visual) {
@@ -836,7 +851,7 @@
   }
 
   /* ---------- Animações de entrada (com escalonamento) ---------- */
-  $$(".grid, .timeline, .dash-list, .timeline__roles, .cases").forEach((g) => {
+  $$(".grid, .timeline, .dash-list, .timeline__roles, .cases, .steps, .models").forEach((g) => {
     [...g.children].forEach((c, i) => c.style.setProperty("--stagger", `${(i % 6) * 90}ms`));
   });
 
