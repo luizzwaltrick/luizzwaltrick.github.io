@@ -610,6 +610,160 @@
     });
   }
 
+  /* ---------- Fundos animados ---------- */
+  const SNIPPETS = {
+    python: [
+      ["k:from", " airflow.decorators ", "k:import", " dag, task"],
+      ["k:import", " pandas ", "k:as", " pd"],
+      [""],
+      ["n:@dag", "(schedule=", "s:\"0 6 * * *\"", ", catchup=", "k:False", ")"],
+      ["k:def", " ", "f:etl_operacao", "():"],
+      ["    ", "n:@task"],
+      ["    ", "k:def", " ", "f:extrair", "():"],
+      ["        ", "k:return", " pd.read_sql(", "s:\"SELECT * FROM embarques\"", ", pg)"],
+      ["    ", "n:@task"],
+      ["    ", "k:def", " ", "f:validar", "(df):"],
+      ["        ", "k:assert", " df[", "s:\"id\"", "].is_unique"],
+      ["        ", "k:return", " df.dropna(subset=[", "s:\"data\"", "])"],
+      ["    ", "n:@task"],
+      ["    ", "k:def", " ", "f:carregar", "(df):"],
+      ["        ", "f:publicar_dataset", "(df, ", "s:\"Torre de Controle\"", ")"],
+      ["    ", "f:carregar", "(", "f:validar", "(", "f:extrair", "()))"],
+      ["c:# ✔ 128.402 linhas validadas"]
+    ],
+    sql: [
+      ["k:WITH", " receita ", "k:AS", " ("],
+      ["  ", "k:SELECT", " empresa, mes, ", "f:SUM", "(valor) ", "k:AS", " total"],
+      ["  ", "k:FROM", " fato_lancamentos"],
+      ["  ", "k:WHERE", " natureza = ", "s:'Receita'"],
+      ["  ", "k:GROUP BY", " empresa, mes"],
+      ["), despesa ", "k:AS", " ("],
+      ["  ", "k:SELECT", " empresa, mes, ", "f:SUM", "(valor) ", "k:AS", " total"],
+      ["  ", "k:FROM", " fato_lancamentos"],
+      ["  ", "k:WHERE", " natureza = ", "s:'Despesa'"],
+      ["  ", "k:GROUP BY", " empresa, mes"],
+      [")"],
+      ["k:SELECT", " r.empresa, r.mes,"],
+      ["       r.total - d.total ", "k:AS", " resultado"],
+      ["k:FROM", " receita r ", "k:JOIN", " despesa d ", "k:USING", " (empresa, mes)"],
+      ["k:ORDER BY", " r.mes ", "k:DESC", ";"],
+      ["c:-- DRE unificado: 4 empresas, 1 consulta"]
+    ],
+    dax: [
+      ["f:Embarques MoM %", " ="],
+      ["k:VAR", " _atual = [Qtd Embarques]"],
+      ["k:VAR", " _anterior ="],
+      ["    ", "f:CALCULATE", "("],
+      ["        [Qtd Embarques],"],
+      ["        ", "f:DATEADD", "(dCalendario[Data], ", "n:-1", ", ", "k:MONTH", ")"],
+      ["    )"],
+      ["k:RETURN"],
+      ["    ", "f:DIVIDE", "(_atual - _anterior, _anterior)"],
+      [""],
+      ["f:Cor OTIF", " ="],
+      ["f:SWITCH", "(", "k:TRUE", "(),"],
+      ["    [OTIF] >= ", "n:0.95", ", ", "s:\"#00FF18\"", ","],
+      ["    [OTIF] >= ", "n:0.90", ", ", "s:\"#C8D400\"", ","],
+      ["    ", "s:\"#FF5C7A\""],
+      [")"]
+    ]
+  };
+  const startCodeFx = (el) => {
+    const lines = SNIPPETS[el.dataset.lang] || SNIPPETS.python;
+    const box = document.createElement("div");
+    box.className = "fx__lines";
+    el.append(box);
+    let li = 0, running = false, timer = 0;
+    const MAX = 13;
+    const typeLine = () => {
+      if (!running) return;
+      const parts = lines[li % lines.length];
+      const row = document.createElement("div");
+      row.className = "fx__ln";
+      const num = document.createElement("b");
+      num.textContent = (li % lines.length) + 1;
+      const code = document.createElement("span");
+      const caret = document.createElement("i");
+      caret.className = "fx__caret";
+      row.append(num, code, caret);
+      box.append(row);
+      while (box.children.length > MAX) box.firstChild.remove();
+      // digita token a token, caractere a caractere
+      const tokens = parts.map((p) => { const m = /^([kscfn]):(.*)$/.exec(p); return m ? [m[1], m[2]] : ["", p]; });
+      let ti = 0, ci = 0, span = null;
+      const typeChar = () => {
+        if (!running) return;
+        if (ti >= tokens.length) {
+          caret.remove();
+          li++;
+          if (li % lines.length === 0) { timer = setTimeout(() => { box.replaceChildren(); typeLine(); }, 2200); return; }
+          timer = setTimeout(typeLine, 260);
+          return;
+        }
+        const [cls, txt] = tokens[ti];
+        if (!span) { span = document.createElement("span"); if (cls) span.className = cls; code.append(span); }
+        span.textContent += txt.charAt(ci) || "";
+        ci++;
+        if (ci >= txt.length) { ti++; ci = 0; span = null; }
+        timer = setTimeout(typeChar, 22 + Math.random() * 38);
+      };
+      typeChar();
+    };
+    return {
+      play() { if (running) return; running = true; typeLine(); },
+      pause() { running = false; clearTimeout(timer); }
+    };
+  };
+  const startBiFx = (el) => {
+    const NSV = "http://www.w3.org/2000/svg";
+    let running = false, timer = 0;
+    const build = () => {
+      const bars = Array.from({ length: 12 }, (_, i) => 30 + Math.round(Math.random() * 60) + i * 2);
+      const max = Math.max(...bars);
+      const line = Array.from({ length: 9 }, (_, i) => [310 + i * 26, 212 - (Math.random() * 40 + i * 4)]);
+      const segs = [[0.46, "#0B72D7"], [0.27, "#54B5FB"], [0.17, "#00DDFF"], [0.10, "#6B7A8D"]];
+      const C = 2 * Math.PI * 34;
+      let acc = 0;
+      el.innerHTML = `<svg viewBox="0 0 540 340">
+        <rect class="fx-bi__frame" style="--i:0" x="4" y="4" width="532" height="40" rx="10" pathLength="1"/>
+        <rect x="20" y="17" width="5" height="14" rx="1" class="fx-bi__kpi" style="--i:0;fill:#0B72D7"/><rect x="28" y="13" width="5" height="18" rx="1" class="fx-bi__kpi" style="--i:0;fill:#54B5FB"/><rect x="36" y="9" width="5" height="22" rx="1" class="fx-bi__kpi" style="--i:0;fill:#00DDFF"/>
+        ${[0, 1, 2, 3].map((i) => `<rect class="fx-bi__frame" style="--i:${i + 1}" x="${4 + i * 135}" y="56" width="125" height="62" rx="10" pathLength="1"/>
+          <rect class="fx-bi__kpi" style="--i:${i}" x="${18 + i * 135}" y="70" width="${40 + (i % 2) * 20}" height="6" rx="3"/>
+          <rect class="fx-bi__kpi" style="--i:${i}" x="${18 + i * 135}" y="86" width="${60 + ((i + 1) % 3) * 12}" height="16" rx="4"/>`).join("")}
+        <rect class="fx-bi__frame" style="--i:5" x="4" y="130" width="280" height="206" rx="10" pathLength="1"/>
+        ${bars.map((v, i) => `<rect class="fx-bi__bar${v === max ? " is-max" : ""}" style="--i:${i}" x="${20 + i * 21.5}" y="${320 - (v / max) * 160}" width="15" height="${(v / max) * 160}" rx="3"/>`).join("")}
+        <rect class="fx-bi__frame" style="--i:6" x="294" y="130" width="242" height="96" rx="10" pathLength="1"/>
+        <path class="fx-bi__line" pathLength="1" d="${line.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join(" ")}"/>
+        <rect class="fx-bi__frame" style="--i:7" x="294" y="236" width="242" height="100" rx="10" pathLength="1"/>
+        ${segs.map(([f, col], i) => { const len = f * C - 3; const c = `<circle class="fx-bi__ring" style="--i:${i};--len:${len};stroke:${col}" cx="350" cy="286" r="34" stroke-dashoffset="${-acc}"/>`; acc += f * C; return c; }).join("")}
+        ${[0, 1, 2].map((i) => `<rect class="fx-bi__kpi" style="--i:${i + 2}" x="404" y="${262 + i * 16}" width="${90 - i * 18}" height="7" rx="3"/>`).join("")}
+      </svg>`;
+    };
+    const cycle = () => {
+      if (!running) return;
+      el.classList.remove("is-drawing", "is-leaving");
+      build();
+      void el.offsetWidth;
+      el.classList.add("is-drawing");
+      timer = setTimeout(() => {
+        el.classList.add("is-leaving");
+        timer = setTimeout(cycle, 900);
+      }, 7000);
+    };
+    return {
+      play() { if (running) return; running = true; cycle(); },
+      pause() { running = false; clearTimeout(timer); }
+    };
+  };
+  const fxs = $$("[data-fx]").map((el) => ({ el, fx: el.dataset.fx === "bi" ? startBiFx(el) : startCodeFx(el) }));
+  if ("IntersectionObserver" in window) {
+    const fio = new IntersectionObserver((entries) => entries.forEach((en) => {
+      const item = fxs.find((x) => x.el === en.target);
+      if (en.isIntersecting) item.fx.play(); else item.fx.pause();
+    }), { threshold: 0.05 });
+    fxs.forEach((x) => fio.observe(x.el));
+  }
+
   /* ---------- Títulos montados palavra por palavra ---------- */
   $$(".split-title").forEach((el) => {
     el.innerHTML = el.textContent.trim().split(/\s+/)
