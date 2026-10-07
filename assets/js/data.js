@@ -20,7 +20,7 @@ window.PORTFOLIO = {
     about: [
       "Sou analista de dados e consultor em BI, formado em Tecnologia da Informação pela Estácio. Atuo em todo o ciclo do dado: extração na origem, tratamento e validação em Python e SQL, modelagem semântica e entrega de dashboards em Power BI. Hoje sou o analista de dados da ALS Logística, responsável por análise, engenharia e governança de dados.",
       "Em paralelo, presto consultoria e desenvolvo projetos para outras empresas: diagnóstico do cenário de dados, definição de indicadores, arquitetura de BI e implantação de pipelines e painéis, sempre com foco em entregar algo que o time realmente use.",
-      "Na ES Logistics, orquestrei pipelines com mais de 360 mil registros, automatizei processos que geraram uma economia estimada de 400 horas por mês e reduzi o tempo de deploy em 99% em mais de 60 repositórios. Também desenvolvi soluções de IA generativa, como chatbots com busca vetorial (RAG) para diversas áreas de negócio da empresa."
+      "Na ES Logistics, orquestrei pipelines com mais de 360 mil registros, automatizei processos que somam mais de 500 horas de trabalho manual e reduzi o tempo de deploy em 99% em mais de 70 repositórios. Também implantei, migrei e administrei os bancos de dados e o servidor da empresa. Também desenvolvi soluções de IA generativa, como chatbots com busca vetorial (RAG) para diversas áreas de negócio da empresa."
     ],
     facts: [
       ["Formação", "Tecnologia da Informação · Estácio"],
@@ -31,10 +31,13 @@ window.PORTFOLIO = {
     ],
     stats: [
       { to: 360, prefix: "", suffix: "k+", label: "registros em pipelines" },
-      { to: 400, prefix: "", suffix: "h/mês", label: "economizadas com automação" },
+      { to: 500, prefix: "", suffix: "h+", label: "de trabalho manual automatizadas" },
       { to: 99, prefix: "−", suffix: "%", label: "no tempo de deploy" }
     ]
   },
+
+  /* Contador de visitas: crie uma conta grátis em goatcounter.com e coloque aqui o código escolhido. */
+  analytics: { goatcounter: "" },
 
   services: [
     {
@@ -248,17 +251,61 @@ window.PORTFOLIO = {
     }
   ],
 
+  /*
+   * Cases com resultado. "visual" escolhe a animação: deploy | git | hours | monitor.
+   */
+  cases: [
+    {
+      visual: "deploy",
+      company: "ES Logistics",
+      area: "DevOps · CI/CD",
+      title: "Deploy de 30 minutos para 20 segundos",
+      metric: { to: 99, prefix: "−", suffix: "%", label: "no tempo de deploy" },
+      context: "Cada deploy levava cerca de 30 minutos e dependia de passos manuais. Com mais de 70 repositórios, publicar uma correção travava o time e aumentava o risco de erro.",
+      action: "Reestruturei e padronizei as esteiras de CI/CD no GitHub Actions para todos os repositórios, com build em containers Docker e publicação automática.",
+      result: "O deploy passou a levar cerca de 20 segundos, sem intervenção manual, em mais de 70 repositórios.",
+      tags: ["GitHub Actions", "Docker", "Azure", "CI/CD"]
+    },
+    {
+      visual: "git",
+      company: "ALS Logística",
+      area: "Arquitetura de BI",
+      title: "Relatórios versionados e infraestrutura de BI do zero",
+      metric: { to: 100, prefix: "", suffix: "%", label: "dos relatórios versionados" },
+      context: "Os relatórios existiam só como arquivos soltos, sem histórico de alterações, sem padrão visual e sem um processo claro de publicação.",
+      action: "Versionei todos os relatórios em Git no formato de projeto do Power BI (PBIP) e montei a infraestrutura inteira: estrutura de repositório, scripts de build e publicação, visuais personalizados e tema próprio.",
+      result: "Todo relatório tem histórico, revisão e padrão visual. Uma alteração pode ser rastreada, comparada e desfeita com segurança.",
+      tags: ["Power BI", "PBIP", "Git", "Python", "pbiviz"]
+    },
+    {
+      visual: "hours",
+      company: "ES Logistics",
+      area: "Automação",
+      title: "Mais de 500 horas de trabalho manual automatizadas",
+      metric: { to: 500, prefix: "", suffix: "h+", label: "automatizadas" },
+      context: "Rotinas operacionais e de servidores eram executadas à mão todos os dias, consumindo horas das equipes em tarefas repetitivas e sujeitas a erro.",
+      action: "Mapeei os processos mais repetitivos e automatizei com Python, rotinas agendadas e integrações entre sistemas.",
+      result: "Mais de 500 horas de trabalho manual eliminadas, com as equipes livres para atividades de análise e atendimento.",
+      tags: ["Python", "Automação", "APIs REST", "Linux"]
+    },
+    {
+      visual: "monitor",
+      company: "ES Logistics",
+      area: "Banco de dados · Infraestrutura",
+      title: "Bancos de dados e servidor sob controle",
+      metric: { to: 24, prefix: "", suffix: "/7", label: "de monitoramento" },
+      context: "A empresa precisava de bancos de dados novos e da migração de uma base existente. Com o tempo, o servidor começou a ficar lento sem uma causa aparente.",
+      action: "Implantei um banco de dados, migrei outro e passei a administrar os dois. Implementei monitoramento com Netdata e, pelas métricas, identifiquei acúmulo excessivo de cache como causa da lentidão.",
+      result: "Corrigi o problema de cache e o servidor voltou ao desempenho normal. O monitoramento ficou ativo para antecipar os próximos gargalos.",
+      tags: ["Banco de dados", "Migração", "Netdata", "Linux"]
+    }
+  ],
+
   projects: [
     {
       title: "Pipelines de dados críticos",
       text: "Pipelines no Airflow que passaram de 360 mil registros, com validação de schema antes da carga no PostgreSQL.",
       tags: ["Python", "Airflow", "PostgreSQL", "Docker"],
-      link: ""
-    },
-    {
-      title: "CI/CD em mais de 60 repositórios",
-      text: "Reestruturei as esteiras no GitHub Actions. O deploy, que levava 30 minutos, passou a levar 20 segundos.",
-      tags: ["GitHub Actions", "CI/CD", "Docker"],
       link: ""
     },
     {
@@ -271,12 +318,6 @@ window.PORTFOLIO = {
       title: "Crawlers de mercado",
       text: "Rotinas de coleta de preços e fornecedores para o time de Procurement, rodando de forma agendada.",
       tags: ["Web Scraping", "Python", "Pandas"],
-      link: ""
-    },
-    {
-      title: "Infraestrutura no Azure",
-      text: "Cuidei da infraestrutura em nuvem e dos ambientes do time, todos padronizados com Docker.",
-      tags: ["Azure", "Docker", "Linux"],
       link: ""
     },
     {
@@ -316,8 +357,9 @@ window.PORTFOLIO = {
           period: "abr. 2026 a jun. 2026",
           text: "Referência técnica em DevOps. Cuidei da infraestrutura em nuvem, da automação de deploys e de sistemas para importação e exportação marítima.",
           bullets: [
-            "Deploy de 30 min para 20 s (−99%) em mais de 60 repositórios com GitHub Actions.",
-            "Mais de 400 horas operacionais economizadas com automação de processos e servidores.",
+            "Deploy de 30 min para 20 s (−99%) em mais de 70 repositórios com GitHub Actions.",
+            "Mais de 500 horas de trabalho manual automatizadas em processos e servidores.",
+            "Implantação, migração e administração de bancos de dados, com monitoramento do servidor via Netdata.",
             "Administração do Azure e dos ambientes do time, padronizados com Docker."
           ],
           tags: ["GitHub Actions", "Azure", "Docker", "Python", "React"]
@@ -328,7 +370,7 @@ window.PORTFOLIO = {
           text: "Engenharia e orquestração de dados com Python, Airflow, PostgreSQL, Docker, CI/CD, APIs REST, web scraping e IA generativa.",
           bullets: [
             "Pipelines de dados críticos com mais de 360 mil registros.",
-            "Automação de processos operacionais, com economia estimada de 300 horas por mês.",
+            "Automação de processos operacionais que antes eram feitos à mão pelas equipes.",
             "Soluções de IA generativa (RAG, LLM e banco vetorial) para agilizar consultas internas."
           ],
           tags: ["Airflow", "PostgreSQL", "RAG", "CI/CD"]

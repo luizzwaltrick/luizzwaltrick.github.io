@@ -96,7 +96,6 @@
   $$("[data-bind]").forEach((el) => { el.textContent = p[el.dataset.bind] || ""; });
   $("#about-text").innerHTML = p.about.map((t) => `<p>${esc(t)}</p>`).join("");
   $("#facts").innerHTML = (p.facts || []).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
-  document.title = `${p.name} · ${p.role}`;
 
   /* ---------- Hero: texto rotativo (efeito digitação) ---------- */
   const typed = $("#typed");
@@ -402,6 +401,90 @@
     });
   });
 
+  /* ---------- Cases ---------- */
+  const caseVisual = (c) => {
+    switch (c.visual) {
+      case "deploy": {
+        const cells = Array.from({ length: 72 }, (_, i) => `<i style="--i:${i}"></i>`).join("");
+        return `
+          <div class="cv cv--deploy">
+            <div class="cv__row"><span>Antes</span><div class="cv__bar"><i style="--w:100%"></i></div><strong>30 min</strong></div>
+            <div class="cv__row"><span>Depois</span><div class="cv__bar cv__bar--after"><i style="--w:2%"></i></div><strong>20 s</strong></div>
+            <p class="cv__cap">Mais de 70 repositórios com deploy automático</p>
+            <div class="cv__cells">${cells}</div>
+          </div>`;
+      }
+      case "git": {
+        const commits = [[40, 70], [100, 70], [160, 70], [250, 70], [330, 70], [410, 70], [470, 70]];
+        const dots = commits.map(([x, y], i) => `<circle class="cv__dot" cx="${x}" cy="${y}" r="7" style="--i:${i}"/>`).join("");
+        return `
+          <div class="cv cv--git">
+            <svg viewBox="0 0 510 150" aria-hidden="true">
+              <path class="cv__line cv__line--main" d="M20 70 H490" pathLength="1"/>
+              <path class="cv__line cv__line--a" d="M100 70 C130 70 130 25 160 25 H220 C250 25 250 70 280 70" pathLength="1"/>
+              <path class="cv__line cv__line--b" d="M250 70 C280 70 280 118 310 118 H380 C410 118 410 70 440 70" pathLength="1"/>
+              <circle class="cv__dot cv__dot--a" cx="190" cy="25" r="6" style="--i:3"/>
+              <circle class="cv__dot cv__dot--b" cx="345" cy="118" r="6" style="--i:5"/>
+              ${dots}
+              <text x="190" y="12" text-anchor="middle">tema</text>
+              <text x="345" y="143" text-anchor="middle">visuais</text>
+              <text x="470" y="98" text-anchor="middle">main</text>
+            </svg>
+            <div class="cv__files">
+              <span>Financeiro.pbip</span><span>Comercial.pbip</span><span>RH.pbip</span><span>Logística.pbip</span>
+            </div>
+          </div>`;
+      }
+      case "hours": {
+        const cells = Array.from({ length: 50 }, (_, i) => `<i style="--i:${i}"></i>`).join("");
+        return `
+          <div class="cv cv--hours">
+            <div class="cv__legend"><span><b class="is-manual"></b>manual</span><span><b class="is-auto"></b>automatizado</span><em>cada bloco = 10 h</em></div>
+            <div class="cv__grid">${cells}</div>
+          </div>`;
+      }
+      case "monitor": {
+        const pts = [22, 24, 23, 27, 30, 36, 44, 55, 63, 72, 78, 80, 76, 30, 24, 22, 23, 21, 22, 23];
+        const W = 500, H = 140;
+        const xy = pts.map((v, i) => [(i / (pts.length - 1)) * W, H - (v / 90) * H]);
+        const d = xy.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+        const fixX = xy[13][0];
+        return `
+          <div class="cv cv--monitor">
+            <div class="cv__mhead"><span class="cv__live"></span>Netdata · tempo de resposta do servidor</div>
+            <svg viewBox="0 0 ${W} ${H + 4}" aria-hidden="true">
+              <rect class="cv__warn" x="${xy[5][0]}" y="0" width="${fixX - xy[5][0]}" height="${H}"/>
+              <path class="cv__area" d="${d} L${W} ${H} L0 ${H} Z"/>
+              <path class="cv__line cv__line--mon" d="${d}" pathLength="1"/>
+              <line class="cv__fix" x1="${fixX}" x2="${fixX}" y1="0" y2="${H}"/>
+            </svg>
+            <div class="cv__notes"><span class="is-bad">lentidão: cache acumulado</span><span class="is-good">cache corrigido</span></div>
+          </div>`;
+      }
+      default: return "";
+    }
+  };
+  $("#case-list").innerHTML = (data.cases || []).map((c, i) => `
+    <article class="case draw reveal">
+      <div class="case__visual">
+        <div class="case__metric">
+          <strong data-to="${c.metric.to}" data-prefix="${esc(c.metric.prefix || "")}" data-suffix="${esc(c.metric.suffix || "")}">${esc((c.metric.prefix || "") + "0" + (c.metric.suffix || ""))}</strong>
+          <span>${esc(c.metric.label)}</span>
+        </div>
+        ${caseVisual(c)}
+      </div>
+      <div class="case__body">
+        <p class="case__meta"><span>${String(i + 1).padStart(2, "0")}</span>${esc(c.company)} · ${esc(c.area)}</p>
+        <h3>${esc(c.title)}</h3>
+        <dl class="case__steps">
+          <div><dt>Cenário</dt><dd>${esc(c.context)}</dd></div>
+          <div><dt>O que fiz</dt><dd>${esc(c.action)}</dd></div>
+          <div class="is-result"><dt>Resultado</dt><dd>${esc(c.result)}</dd></div>
+        </dl>
+        ${tags(c.tags)}
+      </div>
+    </article>`).join("");
+
   /* ---------- Projetos ---------- */
   $("#projects").innerHTML = data.projects.map((pr) => `
     <article class="card project spot draw reveal">
@@ -466,6 +549,26 @@
   ].filter(Boolean).join("");
 
   $("#year").textContent = new Date().getFullYear();
+
+  /* ---------- Contador de visitas (GoatCounter) ---------- */
+  const gc = data.analytics && data.analytics.goatcounter;
+  if (gc && !/^(localhost|127\.)/.test(location.hostname) && location.protocol.startsWith("http")) {
+    const sc = document.createElement("script");
+    sc.async = true;
+    sc.src = "https://gc.zgo.at/count.js";
+    sc.dataset.goatcounter = `https://${gc}.goatcounter.com/count`;
+    document.body.append(sc);
+    // Total público de visitas no rodapé (exige "Allow adding visitor counts" ligado no GoatCounter).
+    fetch(`https://${gc}.goatcounter.com/counter/TOTAL.json`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!j || !j.count) return;
+        const el = $("#visits");
+        el.textContent = `${j.count} visitas`;
+        el.hidden = false;
+      })
+      .catch(() => {});
+  }
 
   /* ---------- Menu mobile ---------- */
   const toggle = $(".nav__toggle");
@@ -599,7 +702,7 @@
   }
 
   /* ---------- Animações de entrada (com escalonamento) ---------- */
-  $$(".grid, .timeline, .dash-list, .timeline__roles").forEach((g) => {
+  $$(".grid, .timeline, .dash-list, .timeline__roles, .cases").forEach((g) => {
     [...g.children].forEach((c, i) => c.style.setProperty("--stagger", `${(i % 6) * 90}ms`));
   });
 
@@ -616,6 +719,7 @@
         if (en.isIntersecting) {
           en.target.classList.add("is-visible");
           if (en.target.classList.contains("hero__text")) startStats();
+          if (en.target.classList.contains("case")) { const n = en.target.querySelector(".case__metric strong"); setTimeout(() => runCounter(n, 1400), 300); }
           io.unobserve(en.target);
         }
       });
