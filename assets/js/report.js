@@ -16,6 +16,7 @@
   const KPI_COLORS = [C.blueLight, C.cyan, C.blue, C.soft];
   const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
   const W = 1280, H = 720;
+  const ZOOM = typeof CSS !== "undefined" && CSS.supports && CSS.supports("zoom", "2");
 
   /* ---------------- utilidades ---------------- */
   const hash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; };
@@ -102,7 +103,11 @@
     const rows = [];
     for (let i = 0; i < R.rows; i++) {
       const mi = pick(mW), m = months[mi];
-      const date = new Date(m.date.getFullYear(), m.date.getMonth(), 1 + Math.floor(r() * m.days));
+      let date = new Date(m.date.getFullYear(), m.date.getMonth(), 1 + Math.floor(r() * m.days));
+      // fim de semana tem bem menos movimento, como numa operação real
+      for (let t = 0; t < 3 && (date.getDay() === 0 || date.getDay() === 6) && r() < 0.72; t++) {
+        date = new Date(m.date.getFullYear(), m.date.getMonth(), 1 + Math.floor(r() * m.days));
+      }
       const row = { id: `${R.idPrefix}-${String(10000 + i * 7 + Math.floor(r() * 7)).padStart(6, "0")}`, date, mk: m.key, n: {} };
       for (const k in R.dims) row[k] = R.dims[k].values[pick(dimW[k])];
       R.nums.forEach((nm) => {
@@ -189,11 +194,14 @@
   /* ---------------- relatório ---------------- */
   let modal, ctx;
 
+  // linhas com todos os filtros, menos os de data (para comparar meses)
+  const baseRows = (M, st, skipSelCat) => M.rows.filter((x) => (!st.f.size || st.f.has(x.f)) && (!st.cat.size || st.cat.has(x.cat)) &&
+    (!st.ent.size || st.ent.has(x.ent)) && (!st.st.size || st.st.has(x.st)) &&
+    (skipSelCat || !st.sel.cat.size || st.sel.cat.has(x.cat)) && (!st.sel.ent.size || st.sel.ent.has(x.ent)));
+
   function deltaInfo(R, M, st, idx, k) {
     // último mês completo vs anterior, com os filtros que não são de data
-    const base = M.rows.filter((x) => (!st.f.size || st.f.has(x.f)) && (!st.cat.size || st.cat.has(x.cat)) &&
-      (!st.ent.size || st.ent.has(x.ent)) && (!st.st.size || st.st.has(x.st)) &&
-      (!st.sel.cat.size || st.sel.cat.has(x.cat)) && (!st.sel.ent.size || st.sel.ent.has(x.ent)));
+    const base = baseRows(M, st);
     const a = M.months[10], b = M.months[9];
     const va = kpiOf(R, base.filter((x) => x.mk === a.key), idx);
     const vb = kpiOf(R, base.filter((x) => x.mk === b.key), idx);
@@ -219,7 +227,8 @@
       h("div", { class: "rh__logo", "aria-hidden": "true" }, h("i"), h("i"), h("i")),
       h("div", { class: "rh__title" }, h("h3", { text: d.title }), h("small", { text: R.subtitle })),
       chips,
-      h("div", { class: "rh__chips" }, period, h("span", { class: "rh__chip" }, count, " " + R.unit)));
+      h("div", { class: "rh__chips" }, period, h("span", { class: "rh__chip" }, count, " " + R.unit),
+        h("span", { class: "rh__chip rh__chip--live" }, h("i"), `Atualizado ${dBR(M.today)} 06:00`)));
     return { el, count, period, chips, last: 0 };
   }
 
@@ -273,6 +282,7 @@
   function renderKpis(c, animate) {
     const { R, M, st } = c;
     const vals = kpiValues(R, c.rows);
+    c.spark = null;
     c.kpiBox.replaceChildren(...R.kpis.map((k, i) => {
       const v = vals[i];
       const valEl = h("strong", { class: "kp__v", text: animate ? fmt(0, k.fmt) : fmt(v, k.fmt) });
@@ -292,11 +302,26 @@
         const bad = k.rule === "min" ? v < k.target : v > k.target;
         extra.push(h("span", { class: "kp__pill " + (bad ? "is-bad" : "is-good"), text: `${bad ? "Fora da meta" : "Dentro da meta"} · meta ${fmt(k.target, k.fmt)}` }));
       }
+      // mini tendência dos 11 meses completos
+      const base = c.spark || (c.spark = baseRows(M, st));
+      const series = M.months.slice(0, 11).map((m) => kpiOf(R, base.filter((x) => x.mk === m.key), i));
+      const vals2 = series.filter((x) => x != null);
+      let spark = null;
+      if (vals2.length > 2) {
+        const lo = Math.min(...vals2), hi = Math.max(...vals2), sw = 104, sh = 30;
+        const pts = series.map((y, j) => [(j / (series.length - 1)) * sw, y == null ? sh : sh - ((y - lo) / (hi - lo || 1)) * (sh - 4) - 2]);
+        const d = pts.map(([x, y], j) => `${j ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+        const svgEl = s("svg", { viewBox: `0 0 ${sw} ${sh}`, class: "kp__spark", "aria-hidden": "true" });
+        svgEl.append(s("path", { d: `${d} L${sw} ${sh} L0 ${sh} Z`, class: "kp__spark-area" }), s("path", { d, class: "kp__spark-line", pathLength: 1 }),
+          s("circle", { cx: pts[pts.length - 1][0], cy: pts[pts.length - 1][1], r: 2.6, class: "kp__spark-dot" }));
+        spark = svgEl;
+      }
       const el = h("div", { class: "kp a-fade", style: `--i:${i + 1};--c:${KPI_COLORS[i]}` },
         h("small", { class: "kp__l", text: k.label }), valEl,
         h("span", { class: "kp__ctx", text: st.range === "all" ? "últimos 12 meses" : "no período filtrado" }),
         ...extra,
-        dl ? h("span", { class: "kp__d" }, h("b", { class: dl.good ? "is-good" : "is-bad", text: dl.text }), " " + dl.label) : null);
+        dl ? h("span", { class: "kp__d" }, h("b", { class: dl.good ? "is-good" : "is-bad", text: dl.text }), " " + dl.label) : null,
+        k.pacing ? null : spark);
       if (animate) countTo(valEl, 0, v || 0, k.fmt);
       tipOn(el, () => {
         const mv = kpiOf(R, c.rows.filter((x) => x.mk === M.months[11].key), i);
@@ -318,13 +343,16 @@
     });
     const max = Math.max(1, ...data.map((x) => x.v || 0));
     const maxI = data.findIndex((x) => x.v === max);
+    const full = data.filter((x) => x.v != null && !x.m.partial);
+    const avg = full.length ? full.reduce((a, x) => a + x.v, 0) / full.length : null;
     const box = h("div", { class: "tr" });
+    if (avg) box.append(h("div", { class: "tr__avg", style: `--r:${avg / max}` }, h("span", { text: `média ${fmt(avg, k.fmt)}` })));
     data.forEach((x, i) => {
       const pct = x.v ? (x.v / max) * 100 : 0;
       const dim = st.sel.month && st.sel.month !== x.m.key;
       const prev = i ? data[i - 1].v : null;
       const col = h("button", {
-        type: "button", class: "tr__col" + (dim ? " is-dim" : "") + (x.m.partial ? " is-partial" : "") + (i === maxI ? " is-max" : ""),
+        type: "button", class: "tr__col" + (dim ? " is-dim" : "") + (x.m.partial ? " is-partial" : "") + (i === maxI ? " is-max" : "") + (st.sel.month === x.m.key ? " is-sel" : ""),
         onclick: (e) => { e.stopPropagation(); if (!x.v) return; st.sel.month = st.sel.month === x.m.key ? null : x.m.key; update(); }
       },
         h("span", { class: "tr__val", text: x.v == null ? "s/ dado" : (i === maxI || x.m.partial || st.sel.month === x.m.key ? fmt(x.v, k.fmt) : "") }),
@@ -333,12 +361,13 @@
       tipOn(col, () => [x.m.label + (x.m.partial ? " (mês parcial)" : ""), x.v == null ? [["Valor", "s/ dado"]] : [
         [k.label, fmt(x.v, k.fmt, true)],
         ["vs mês anterior", prev ? `${x.v >= prev ? "▲" : "▼"} ${nf(1).format(Math.abs((x.v / prev - 1) * 100))}%` : "s/ dado"],
+        ["vs média", avg ? `${x.v >= avg ? "▲" : "▼"} ${nf(1).format(Math.abs((x.v / avg - 1) * 100))}%` : "s/ dado"],
         ...(["count", "sum"].includes(k.calc) ? [["Média por dia", fmt(x.v / x.m.days, k.fmt, true)]] : []),
         ["Clique", "filtra o mês"]
       ]]);
       box.append(col);
     });
-    c.trendBody.replaceChildren(box, h("p", { class: "rc__note", text: "* mês parcial · maior valor em destaque" }));
+    c.trendBody.replaceChildren(box, h("p", { class: "rc__note", text: "* mês parcial · maior valor em destaque · linha tracejada = média dos meses completos" }));
   }
 
   /* ----- rosca com "Outros" ----- */
@@ -357,6 +386,10 @@
     const svg = s("svg", { viewBox: `0 0 ${size} ${size}`, class: "sh__donut", role: "img", "aria-label": R.share.title });
     const g = s("g", { transform: `rotate(-90 ${size / 2} ${size / 2})` });
     g.append(s("circle", { cx: size / 2, cy: size / 2, r, fill: "none", stroke: "rgba(84,181,251,.08)", "stroke-width": sw }));
+    const t1 = s("text", { x: size / 2, y: size / 2 + 2, "text-anchor": "middle", class: "sh__total" });
+    t1.textContent = fmt(tot, k.fmt);
+    const t2 = s("text", { x: size / 2, y: size / 2 + 18, "text-anchor": "middle", class: "sh__sub" });
+    t2.textContent = "total";
     let acc = 0;
     const isSel = (it) => !st.sel.cat.size || it.names.some((n) => st.sel.cat.has(n));
     const pick = (it, e) => {
@@ -374,16 +407,13 @@
       cEl.style.strokeDasharray = animate ? `0 ${Cc}` : `${seg} ${Cc - seg}`;
       if (animate) setTimeout(() => { cEl.style.strokeDasharray = `${seg} ${Cc - seg}`; }, 250 + i * 180);
       cEl.addEventListener("click", (e) => pick(it, e));
+      cEl.addEventListener("pointerenter", () => { t1.textContent = nf(1).format((it.v / tot) * 100) + "%"; t2.textContent = it.name; svg.classList.add("is-hover"); cEl.classList.add("is-hot"); });
+      cEl.addEventListener("pointerleave", () => { t1.textContent = fmt(tot, k.fmt); t2.textContent = "total"; svg.classList.remove("is-hover"); cEl.classList.remove("is-hot"); });
       tipOn(cEl, () => [it.name, [[k.label, fmt(it.v, k.fmt, true)], ["Participação", nf(1).format((it.v / tot) * 100) + "%"], ...(it.others ? [["Reúne", `${it.others} categorias`]] : [])]]);
       g.append(cEl);
       acc += len;
     });
-    svg.append(g);
-    const t1 = s("text", { x: size / 2, y: size / 2 + 2, "text-anchor": "middle", class: "sh__total" });
-    t1.textContent = fmt(tot, k.fmt);
-    const t2 = s("text", { x: size / 2, y: size / 2 + 18, "text-anchor": "middle", class: "sh__sub" });
-    t2.textContent = "total";
-    svg.append(t1, t2);
+    svg.append(g, t1, t2);
     const legend = h("ul", { class: "sh__legend" }, items.map((it, i) => h("li", {
       class: "a-in" + (isSel(it) ? "" : " is-dim"), style: `--i:${i}`, onclick: (e) => pick(it, e)
     }, h("i", { style: `background:${it.name === "Outros" ? C.muted : SLICE[i]}` }), h("span", { text: it.name + (it.others ? ` (${it.others})` : "") }),
@@ -516,8 +546,11 @@
     }, col.label, st.sort.key === col.key ? (st.sort.dir < 0 ? " ▼" : " ▲") : ""))));
     const tbody = h("tbody", null, rows.slice(0, limit).map((x, i) => h("tr", { class: animate ? "a-row" : "", style: `--i:${Math.min(i, 30)}` },
       cols.map((col) => {
-        const td = h("td", { class: (col.num ? "num" : "") + (col.dim ? " is-link" : ""), text: col.show(x) });
-        if (col.key === "st") td.classList.add("st-" + hash(x.st) % 3);
+        const td = h("td", { class: (col.num ? "num" : "") + (col.dim ? " is-link" : "") });
+        if (col.key === "st") {
+          const tones = R.dims.st.tones || ["good", "warn", "bad"];
+          td.append(h("span", { class: "badge badge--" + (tones[R.dims.st.values.indexOf(x.st)] || "info"), text: x.st }));
+        } else td.textContent = col.show(x);
         if (col.dim) td.addEventListener("click", (e) => { e.stopPropagation(); toggle(st[col.key], x[col.key], e); update(); });
         return td;
       }))));
@@ -562,6 +595,123 @@
     return h("div", { class: "pg pg--detail" }, c.hd.el, c.filtersRow, h("div", { class: "pg__split" }, c.listCol, c.tableCard));
   }
 
+  /* ----- página de análise ----- */
+  function buildAnalysis(c) {
+    const { R } = c;
+    const mk = (title, sub, i, cls) => { const el = card(title, sub, i, cls); const body = h("div", { class: "rc__body" }); el.append(body); return [el, body]; };
+    const [heat, hb] = mk(`${R.trend.title.split(" por ")[0]} por ${R.dims.f.label.toLowerCase()} e mês`, "intensidade = volume · clique para filtrar", 1, "rc--heat");
+    const [vari, vb] = mk(`Variação por ${R.dims.cat.label.toLowerCase()}`, "último mês completo vs anterior", 2, "rc--var");
+    const [abc, ab] = mk(`Curva ABC · ${R.dims.ent.label.toLowerCase()}`, "A = até 80% do valor · B = até 95% · C = restante", 3, "rc--abc");
+    const [wk, wb] = mk("Por dia da semana", "distribuição no período", 4, "rc--week");
+    c.heatBody = hb; c.varBody = vb; c.abcBody = ab; c.weekBody = wb;
+    return h("div", { class: "pg pg--analysis" }, c.hd.el, h("div", { class: "pg__grid" }, heat, vari, abc, wk));
+  }
+
+  function renderHeat(c) {
+    const { R, M, st } = c;
+    const k = R.kpis[R.trend.kpi];
+    const rows = filtered(M, st, { selMonth: true, f: true });
+    const fs = R.dims.f.values;
+    const cells = fs.map((f) => M.months.map((m) => kpiOf(R, rows.filter((x) => x.f === f && x.mk === m.key), R.trend.kpi) || 0));
+    const max = Math.max(1, ...cells.flat());
+    const grid = h("div", { class: "hm", style: `--cols:${M.months.length}` },
+      h("span"), ...M.months.map((m) => h("span", { class: "hm__mh", text: m.label.split("/")[0] + (m.partial ? "*" : "") })), h("span", { class: "hm__mh", text: "Total" }));
+    fs.forEach((f, ri) => {
+      const total = cells[ri].reduce((a, b) => a + b, 0);
+      grid.append(h("span", { class: "hm__rh" + (st.f.size && !st.f.has(f) ? " is-dim" : ""), text: f }));
+      M.months.forEach((m, ci) => {
+        const v = cells[ri][ci], r = v / max;
+        const cell = h("button", {
+          type: "button", class: "hm__cell a-cell" + ((st.sel.month && st.sel.month !== m.key) || (st.f.size && !st.f.has(f)) ? " is-dim" : ""),
+          style: `--a:${(0.08 + r * 0.92).toFixed(3)};--i:${ri * 3 + ci};color:${r > 0.55 ? "#071E38" : "#fff"}`,
+          text: v ? compact(v) : "–",
+          onclick: (e) => { e.stopPropagation(); st.sel.month = st.sel.month === m.key ? null : m.key; update(); }
+        });
+        tipOn(cell, () => [`${f} · ${m.label}`, [[k.label, fmt(v, k.fmt, true)], ["% do total da linha", total ? nf(1).format((v / total) * 100) + "%" : "s/ dado"]]]);
+        grid.append(cell);
+      });
+      grid.append(h("strong", { class: "hm__tot", text: fmt(total, k.fmt) }));
+    });
+    c.heatBody.replaceChildren(grid);
+  }
+
+  function renderVariation(c) {
+    const { R, M, st } = c;
+    const k = R.kpis[R.trend.kpi];
+    const base = baseRows(M, st, true);
+    const a = M.months[10], b = M.months[9];
+    const items = R.dims.cat.values.map((name) => {
+      const mine = base.filter((x) => x.cat === name);
+      const va = kpiOf(R, mine.filter((x) => x.mk === a.key), R.trend.kpi) || 0;
+      const vb = kpiOf(R, mine.filter((x) => x.mk === b.key), R.trend.kpi) || 0;
+      return { name, va, vb, d: vb ? ((va - vb) / vb) * 100 : 0 };
+    }).sort((x, y) => y.d - x.d);
+    const lim = Math.max(10, ...items.map((x) => Math.abs(x.d)));
+    const list = h("ul", { class: "vr" }, items.map((x, i) => {
+      const up = x.d >= 0;
+      const good = k.lowerIsBetter ? !up : up;
+      const li = h("li", {
+        class: "vr__row a-in" + (st.sel.cat.size && !st.sel.cat.has(x.name) ? " is-dim" : ""), style: `--i:${i}`,
+        onclick: (e) => { e.stopPropagation(); toggle(st.sel.cat, x.name, e); update(); }
+      }, h("span", { class: "vr__name", text: x.name }),
+        h("span", { class: "vr__track" }, h("i", { class: "vr__bar a-growx " + (good ? "is-good" : "is-bad") + (up ? " is-up" : " is-down"), style: `--w:${(Math.abs(x.d) / lim) * 50}%;--i:${i}` })),
+        h("strong", { class: good ? "is-good" : "is-bad", text: `${up ? "▲" : "▼"} ${nf(1).format(Math.abs(x.d))}%` }));
+      tipOn(li, () => [x.name, [[a.label, fmt(x.va, k.fmt, true)], [b.label, fmt(x.vb, k.fmt, true)], ["Variação", `${up ? "+" : ""}${nf(1).format(x.d)}%`]]]);
+      return li;
+    }));
+    c.varBody.replaceChildren(list, h("p", { class: "rc__note", text: `${a.label} vs ${b.label} · barra à direita = alta, à esquerda = queda` }));
+  }
+
+  function renderABC(c) {
+    const { R, M, st } = c;
+    const k = R.kpis[R.ranking.kpi];
+    const rows = filtered(M, st, { selEnt: true });
+    const all = R.dims.ent.values.map((name) => ({ name, v: kpiOf(R, rows.filter((x) => x.ent === name), R.ranking.kpi) || 0 }))
+      .filter((x) => x.v > 0).sort((a, b) => b.v - a.v);
+    const tot = all.reduce((a, x) => a + x.v, 0) || 1;
+    let acc = 0;
+    all.forEach((x) => { acc += x.v; x.cum = (acc / tot) * 100; x.cls = x.cum - (x.v / tot) * 100 < 80 ? "A" : x.cum - (x.v / tot) * 100 < 95 ? "B" : "C"; });
+    const count = (cl) => all.filter((x) => x.cls === cl).length;
+    const summary = h("div", { class: "abc__sum" }, ["A", "B", "C"].map((cl) => h("span", { class: "badge badge--abc-" + cl.toLowerCase() }, `Classe ${cl} · ${count(cl)} ${count(cl) === 1 ? "item" : "itens"}`)));
+    const fitN = c.fluid ? 10 : 6;
+    const table = h("div", { class: "abc" }, all.slice(0, fitN).map((x, i) => {
+      const row = h("div", {
+        class: "abc__row a-in" + (st.sel.ent.size && !st.sel.ent.has(x.name) ? " is-dim" : ""), style: `--i:${i}`,
+        onclick: (e) => { e.stopPropagation(); toggle(st.sel.ent, x.name, e); update(); }
+      }, h("span", { class: "abc__pos", text: String(i + 1) }), h("span", { class: "abc__name", text: x.name }),
+        h("strong", { class: "abc__v", text: fmt(x.v, k.fmt) }),
+        h("span", { class: "abc__track" }, h("i", { class: "a-growx", style: `--w:${x.cum}%;--i:${i}` }), h("b", { style: "left:80%" }), h("b", { style: "left:95%" })),
+        h("em", { text: nf(1).format(x.cum) + "%" }),
+        h("span", { class: "badge badge--abc-" + x.cls.toLowerCase(), text: x.cls }));
+      tipOn(row, () => [`${i + 1}º · ${x.name}`, [[k.label, fmt(x.v, k.fmt, true)], ["Participação", nf(1).format((x.v / tot) * 100) + "%"], ["Acumulado", nf(1).format(x.cum) + "%"], ["Classe", x.cls]]]);
+      return row;
+    }));
+    const more = all.length > fitN ? h("button", { type: "button", class: "rc__link", text: `Ver lista (${all.length})`, onclick: (e) => { e.stopPropagation(); go("detail"); } }) : null;
+    c.abcBody.replaceChildren(summary, table, more);
+  }
+
+  function renderWeek(c) {
+    const { R, st } = c;
+    const k = R.kpis[R.trend.kpi];
+    const names = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+    const order = [1, 2, 3, 4, 5, 6, 0];
+    const vals = order.map((d) => kpiOf(R, c.rows.filter((x) => x.date.getDay() === d), R.trend.kpi) || 0);
+    const max = Math.max(1, ...vals);
+    const tot = vals.reduce((a, b) => a + b, 0) || 1;
+    const maxI = vals.indexOf(max);
+    const box = h("div", { class: "wk" }, order.map((d, i) => {
+      const col = h("div", { class: "wk__col" + (i === maxI ? " is-max" : "") },
+        h("span", { class: "wk__val", text: nf(0).format((vals[i] / tot) * 100) + "%" }),
+        h("span", { class: "wk__bar a-growy", style: `--h:${(vals[i] / max) * 100}%;--i:${i}` }),
+        h("span", { class: "wk__lbl", text: names[d] }));
+      tipOn(col, () => [names[d], [[k.label, fmt(vals[i], k.fmt, true)], ["Participação", nf(1).format((vals[i] / tot) * 100) + "%"]]]);
+      return col;
+    }));
+    c.weekBody.replaceChildren(box);
+  }
+
+  const buildPage = (c, page) => (page === "main" ? buildMain(c) : page === "analysis" ? buildAnalysis(c) : buildDetail(c));
+
   /* ----- ciclo de atualização ----- */
   function update(opts = {}) {
     const c = ctx;
@@ -576,6 +726,11 @@
       renderTrend(c);
       renderShare(c, true);
       renderRanking(c);
+    } else if (c.st.page === "analysis") {
+      renderHeat(c);
+      renderVariation(c);
+      renderABC(c);
+      renderWeek(c);
     } else {
       c.filtersRow.replaceChildren(dateFilter(c, 1), chipFilter(c, "f", 2), chipFilter(c, "cat", 3), chipFilter(c, "st", 4));
       c.listCol.replaceChildren(listFilter(c, 5));
@@ -592,7 +747,7 @@
     c.st.page = page;
     c.tabs.forEach((t) => t.classList.toggle("is-on", t.dataset.page === page));
     c.hd = header(c.d, c.R, c.M, c.st);
-    c.page = page === "main" ? buildMain(c) : buildDetail(c);
+    c.page = buildPage(c, page);
     c.canvas.replaceChildren(c.page);
     fit();
     // primeiro o BI "se desenha" (bordas e esqueleto), depois entram os dados
@@ -611,10 +766,11 @@
     const fluid = stage.clientWidth < 820;
     c.fluid = fluid;
     c.canvas.classList.toggle("is-fluid", fluid);
-    if (fluid) { c.canvas.style.transform = ""; c.canvas.style.width = ""; c.canvas.style.height = ""; c.sizer.style.cssText = ""; return; }
+    if (fluid) { c.canvas.style.transform = ""; c.canvas.style.zoom = ""; c.canvas.style.width = ""; c.canvas.style.height = ""; c.sizer.style.cssText = ""; return; }
     const k = Math.min((stage.clientWidth - 24) / W, (stage.clientHeight - 24) / H);
     c.canvas.style.width = W + "px"; c.canvas.style.height = H + "px";
-    c.canvas.style.transform = `scale(${k})`;
+    // zoom mantém o texto nítido; transform fica como alternativa
+    if (ZOOM) { c.canvas.style.zoom = k; c.canvas.style.transform = ""; } else c.canvas.style.transform = `scale(${k})`;
     c.sizer.style.cssText = `width:${W * k}px;height:${H * k}px`;
   }
 
@@ -647,11 +803,11 @@
       const back = c.st.page;
       const wasFluid = c.fluid;
       c.capturing = true;
-      for (const [i, pg] of ["main", "detail"].entries()) {
+      for (const [i, pg] of ["main", "analysis", "detail"].entries()) {
         c.st.page = pg;
         c.tabs.forEach((t) => t.classList.toggle("is-on", t.dataset.page === pg));
         c.hd = header(c.d, c.R, c.M, c.st);
-        c.page = pg === "main" ? buildMain(c) : buildDetail(c);
+        c.page = buildPage(c, pg);
         c.canvas.replaceChildren(c.page);
         c.canvas.classList.add("is-capture");
         c.canvas.classList.remove("is-fluid");
@@ -659,10 +815,10 @@
         update();
         c.page.classList.add("no-anim");
         await new Promise((r) => setTimeout(r, 1100));
-        const prev = c.canvas.style.transform;
-        c.canvas.style.transform = "none";
+        const prev = c.canvas.style.transform, prevZ = c.canvas.style.zoom;
+        c.canvas.style.transform = "none"; c.canvas.style.zoom = "1";
         const shot = await window.html2canvas(c.canvas, { backgroundColor: "#071E38", scale: 2, width: W, height: H, windowWidth: W, windowHeight: H });
-        c.canvas.style.transform = prev;
+        c.canvas.style.transform = prev; c.canvas.style.zoom = prevZ;
         if (i) pdf.addPage([W, H], "landscape");
         pdf.addImage(shot.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, W, H);
       }
@@ -701,7 +857,7 @@
     const pdfBtn = h("button", { type: "button", class: "rpt__btn", text: "Exportar PDF" });
     pdfBtn.addEventListener("click", () => exportPDF(c, pdfBtn));
     const csvBtn = h("button", { type: "button", class: "rpt__btn", text: "Exportar CSV", onclick: () => exportCSV(c) });
-    c.tabs = [["main", "Visão geral"], ["detail", "Detalhe"]].map(([id, label]) => h("button", {
+    c.tabs = [["main", "Visão geral"], ["analysis", "Análise"], ["detail", "Detalhe"]].map(([id, label]) => h("button", {
       type: "button", class: "rpt__tab", "data-page": id, text: label, onclick: () => go(id)
     }));
     c.canvas = h("div", { class: "rpt__canvas" });

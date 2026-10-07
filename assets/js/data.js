@@ -107,7 +107,7 @@ window.PORTFOLIO = {
           f: { label: "Porto", values: ["Itajaí", "Navegantes", "Paranaguá", "Santos", "Rio Grande"] },
           cat: { label: "Tipo de carga", values: ["Contêiner 40'", "Contêiner 20'", "Reefer", "Carga solta", "Granel", "Projeto"] },
           ent: { label: "Cliente", values: ["Têxtil Vale", "Alimentos Sul", "Metalúrgica Brusque", "Cerâmica Litoral", "Móveis Serra", "Pescados Itajaí", "Agro Planalto", "Química Norte", "Papel & Cia", "Plásticos Oeste", "Calçados Vale", "Eletro Sul", "Maderas BR", "Frigorífico Rio Sul", "Autopeças Joinville", "Vinícola Serra"] },
-          st: { label: "Status", values: ["No prazo", "Atrasado", "Em trânsito"], weights: [82, 9, 9] }
+          st: { label: "Status", values: ["No prazo", "Atrasado", "Em trânsito"], weights: [82, 9, 9], tones: ["good", "bad", "info"] }
         },
         nums: [
           { key: "frete", label: "Frete", fmt: "brl", gen: [1800, 14000] },
@@ -147,7 +147,7 @@ window.PORTFOLIO = {
           f: { label: "Empresa", values: ["Matriz", "Filial SC", "Filial SP", "Filial PR"] },
           cat: { label: "Centro de custo", values: ["Operações", "Pessoal", "Comercial", "Administrativo", "TI", "Financeiro", "Jurídico"] },
           ent: { label: "Conta", values: ["Frete internacional", "Armazenagem", "Desembaraço", "Salários", "Encargos", "Aluguel", "Energia", "Software", "Consultoria", "Combustível", "Seguros", "Manutenção", "Marketing", "Viagens"] },
-          st: { label: "Natureza", values: ["Receita", "Despesa"], weights: [57, 43] }
+          st: { label: "Natureza", values: ["Receita", "Despesa"], weights: [57, 43], tones: ["info", "muted"] }
         },
         nums: [
           { key: "valor", label: "Valor", fmt: "brl", gen: [2500, 38000] }
@@ -186,7 +186,7 @@ window.PORTFOLIO = {
           f: { label: "Time", values: ["Inside Sales", "Key Accounts", "Canais", "Exportação"] },
           cat: { label: "Segmento", values: ["Indústria", "Varejo", "Serviços", "Agro", "Governo", "Saúde"] },
           ent: { label: "Cliente", values: ["Grupo Atlântico", "Rede Bom Preço", "Indústrias Kuhn", "Coop. Oeste", "Hospital Vida", "Construtora Mar", "Supermercados Litoral", "Transportes Vale", "Usina Norte", "Farmácias União", "Têxtil Brusque", "Agro Campos", "Prefeitura Sul", "Moinho Serra"] },
-          st: { label: "Status", values: ["Faturado", "Em aberto", "Cancelado"], weights: [78, 15, 7] }
+          st: { label: "Status", values: ["Faturado", "Em aberto", "Cancelado"], weights: [78, 15, 7], tones: ["good", "warn", "bad"] }
         },
         nums: [
           { key: "valor", label: "Valor do pedido", fmt: "brl", gen: [3500, 42000] },
@@ -226,7 +226,7 @@ window.PORTFOLIO = {
           f: { label: "Canal", values: ["Google Ads", "Meta Ads", "LinkedIn Ads", "TikTok Ads"], weights: [42, 34, 14, 10] },
           cat: { label: "Objetivo", values: ["Conversão", "Tráfego", "Alcance", "Leads", "Remarketing"] },
           ent: { label: "Campanha", values: ["Institucional", "Remarketing 30d", "Lançamento", "Black Friday", "Leads B2B", "Always-on", "Volta às aulas", "Dia das Mães", "Webinar", "Catálogo", "Marca", "Concorrentes"] },
-          st: { label: "Status", values: ["Ativa", "Pausada", "Encerrada"], weights: [70, 18, 12] }
+          st: { label: "Status", values: ["Ativa", "Pausada", "Encerrada"], weights: [70, 18, 12], tones: ["good", "warn", "muted"] }
         },
         nums: [
           { key: "spend", label: "Investimento", fmt: "brl", gen: [180, 2600] },
