@@ -16,7 +16,7 @@ window.PORTFOLIO = {
     linkedin: "https://www.linkedin.com/in/luizzwaltrick/",
     github: "https://github.com/luizzwaltrick",
     codewars: "https://www.codewars.com/users/LuizzWaltrick",
-    cv: "", // ex.: "assets/cv-aldory-waltrick.pdf"
+    cv: "assets/Aldory_Waltrick_CV.pdf", // PDF baixado pelos botões "Baixar CV"
     about: [
       "Sou analista de dados e consultor em BI, formado em Tecnologia da Informação. Atuo em todo o ciclo do dado: extração na origem, tratamento e validação em Python e SQL, modelagem semântica e entrega de dashboards em Power BI. Hoje sou o analista de dados da ALS Logística, responsável por análise, engenharia e governança de dados.",
       "Em paralelo, presto consultoria e desenvolvo projetos para outras empresas: diagnóstico do cenário de dados, definição de indicadores, arquitetura de BI e implantação de pipelines e painéis, sempre com foco em entregar algo que o time realmente use.",

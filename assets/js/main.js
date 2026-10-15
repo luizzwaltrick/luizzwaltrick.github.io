@@ -541,10 +541,10 @@
     p.email && { href: `mailto:${p.email}`, label: p.email, icon: "mail", cls: "btn--ghost" },
     p.github && { href: p.github, label: "GitHub", icon: "github", cls: "btn--ghost" },
     p.codewars && { href: p.codewars, label: "Codewars", icon: "code2", cls: "btn--ghost" },
-    p.cv && { href: p.cv, label: "Baixar CV", icon: "file", cls: "btn--ghost" }
+    p.cv && { href: p.cv, label: "Baixar CV", icon: "file", cls: "btn--ghost", download: true }
   ].filter(Boolean);
   $("#contact-links").innerHTML = contacts.map((c) => `
-    <a class="btn ${c.cls}" href="${esc(c.href)}" ${c.href.startsWith("http") ? 'target="_blank" rel="noopener"' : ""}>
+    <a class="btn ${c.cls}" href="${esc(c.href)}" ${c.href.startsWith("http") ? 'target="_blank" rel="noopener"' : ""}${c.download ? " download" : ""}>
       ${icon(c.icon)} ${esc(c.label)}
     </a>`).join("");
 
@@ -557,6 +557,13 @@
     heroCta.innerHTML = `${icon("whatsapp")} Falar no WhatsApp`;
   }
   $("#hero-linkedin").href = p.linkedin;
+  const heroCv = $("#hero-cv");
+  if (p.cv) {
+    heroCv.href = p.cv;
+    heroCv.innerHTML = `${icon("file")} CV`;
+  } else {
+    heroCv.remove();
+  }
   $("#fab").innerHTML = [
     p.linkedin && `<a class="fab fab--in" href="${esc(p.linkedin)}" target="_blank" rel="noopener" aria-label="LinkedIn">${icon("linkedin")}<span>LinkedIn</span></a>`,
     whatsappUrl && `<a class="fab fab--wa" href="${esc(whatsappUrl)}" target="_blank" rel="noopener" aria-label="WhatsApp">${icon("whatsapp")}<span>WhatsApp</span></a>`
