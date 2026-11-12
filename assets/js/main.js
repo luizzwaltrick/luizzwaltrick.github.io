@@ -540,8 +540,7 @@
     p.linkedin && { href: p.linkedin, label: "LinkedIn", icon: "linkedin", cls: "btn--in" },
     p.email && { href: `mailto:${p.email}`, label: p.email, icon: "mail", cls: "btn--ghost" },
     p.github && { href: p.github, label: "GitHub", icon: "github", cls: "btn--ghost" },
-    p.codewars && { href: p.codewars, label: "Codewars", icon: "code2", cls: "btn--ghost" },
-    p.cv && { href: p.cv, label: "Baixar CV", icon: "file", cls: "btn--ghost", download: true }
+    p.codewars && { href: p.codewars, label: "Codewars", icon: "code2", cls: "btn--ghost" }
   ].filter(Boolean);
   $("#contact-links").innerHTML = contacts.map((c) => `
     <a class="btn ${c.cls}" href="${esc(c.href)}" ${c.href.startsWith("http") ? 'target="_blank" rel="noopener"' : ""}${c.download ? " download" : ""}>
