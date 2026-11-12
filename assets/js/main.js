@@ -94,7 +94,7 @@
 
   /* ---------- Perfil ---------- */
   $$("[data-bind]").forEach((el) => { el.textContent = p[el.dataset.bind] || ""; });
-  $("#about-text").innerHTML = p.about.map((t) => `<p>${esc(t)}</p>`).join("");
+  $("#about-text") && ($("#about-text").innerHTML = p.about.map((t) => `<p>${esc(t)}</p>`).join(""));
 
   /* ---------- Hero: texto rotativo (efeito digitação) ---------- */
   const typed = $("#typed");
@@ -401,7 +401,7 @@
   });
 
   /* ---------- Como trabalho ---------- */
-  $("#steps").innerHTML = (data.process || []).map((st, i) => `
+  if ($("#steps")) $("#steps").innerHTML = (data.process || []).map((st, i) => `
     <li class="step reveal" style="--s:${i}">
       <span class="step__n">${String(i + 1).padStart(2, "0")}</span>
       <h3>${esc(st.title)}</h3>
@@ -500,7 +500,7 @@
     </article>`).join("");
 
   /* ---------- Projetos ---------- */
-  $("#projects").innerHTML = data.projects.map((pr) => `
+  if ($("#projects")) $("#projects").innerHTML = data.projects.map((pr) => `
     <article class="card project spot draw reveal">
       <h3>${esc(pr.title)}</h3>
       <p>${esc(pr.text)}</p>
@@ -528,7 +528,7 @@
     </li>`).join("");
 
   /* ---------- Stack ---------- */
-  $("#stack-list").innerHTML = Object.entries(data.stack).map(([group, items]) => `
+  if ($("#stack-list")) $("#stack-list").innerHTML = Object.entries(data.stack).map(([group, items]) => `
     <div class="card stack spot draw reveal">
       <h3 class="mono">${esc(group)}</h3>
       ${tags(items)}
@@ -555,14 +555,6 @@
     heroCta.target = "_blank";
     heroCta.rel = "noopener";
     heroCta.innerHTML = `${icon("whatsapp")} Falar no WhatsApp`;
-  }
-  $("#hero-linkedin").href = p.linkedin;
-  const heroCv = $("#hero-cv");
-  if (p.cv) {
-    heroCv.href = p.cv;
-    heroCv.innerHTML = `${icon("file")} CV`;
-  } else {
-    heroCv.remove();
   }
   $("#fab").innerHTML = [
     p.linkedin && `<a class="fab fab--in" href="${esc(p.linkedin)}" target="_blank" rel="noopener" aria-label="LinkedIn">${icon("linkedin")}<span>LinkedIn</span></a>`,

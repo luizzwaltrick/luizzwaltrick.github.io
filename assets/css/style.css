@@ -723,3 +723,24 @@ main > section, main > .marquee { position: relative; z-index: 1; }
   .steps { grid-template-columns: 1fr; }
   .step::after { display: none; }
 }
+
+/* Área atendida (texto estático para SEO local) */
+.hero__area { margin-top: 10px; color: var(--muted, #9aa4bf); font-size: 15px; }
+
+/* Celular: página mais curta (carrosséis horizontais e menos texto) */
+@media (max-width: 760px) {
+  .section { padding-top: 64px; padding-bottom: 64px; }
+  #services, .models, .dash-list, .cases {
+    display: flex; flex-direction: row; gap: 14px; overflow-x: auto;
+    scroll-snap-type: x mandatory; margin-inline: -16px; padding: 4px 16px 14px;
+    scrollbar-width: none;
+  }
+  #services::-webkit-scrollbar, .models::-webkit-scrollbar, .dash-list::-webkit-scrollbar, .cases::-webkit-scrollbar { display: none; }
+  #services > *, .models > *, .dash-list > *, .cases > * { flex: 0 0 86%; scroll-snap-align: start; }
+  .models { margin-top: 20px; }
+  .service .tags { display: none; }
+  .case__steps > div:first-child { display: none; }
+  .case__visual { min-height: 0; }
+  .role__bullets, .role .tags { display: none; }
+  .section__sub { font-size: .95rem; }
+}

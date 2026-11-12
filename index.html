@@ -3,10 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aldory Waltrick · Dados, BI e Consultoria</title>
-  <meta name="description" content="Portfólio de Aldory Waltrick: análise e engenharia de dados, dashboards em Power BI, DevOps, IA generativa e sites.">
-  <meta property="og:title" content="Aldory Waltrick · Dados, BI e Consultoria">
-  <meta property="og:description" content="Consultoria em dados e BI, dashboards em Power BI, pipelines em Python e Airflow, DevOps e IA generativa.">
+  <title>Aldory Waltrick · Consultor de Dados e Power BI em Itajaí, SC</title>
+  <meta name="description" content="Consultoria em dados e BI em Itajaí e Balneário Camboriú (SC) e remoto: dashboards em Power BI, pipelines em Python e SQL, automação e IA generativa.">
+  <link rel="canonical" href="https://luizzwaltrick.github.io/">
+  <meta name="geo.region" content="BR-SC">
+  <meta name="geo.placename" content="Itajaí">
+  <meta property="og:title" content="Aldory Waltrick · Consultor de Dados e Power BI em Itajaí, SC">
+  <meta property="og:description" content="Consultoria em dados e BI em Itajaí e Balneário Camboriú (SC) e remoto: dashboards em Power BI, pipelines em Python e SQL, automação e IA generativa.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://luizzwaltrick.github.io/">
   <meta property="og:site_name" content="Aldory Waltrick">
@@ -18,7 +21,7 @@
   <meta property="og:image:alt" content="Aldory Waltrick · Dados, BI e Consultoria">
   <meta property="og:locale" content="pt_BR">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Aldory Waltrick · Dados, BI e Consultoria">
+  <meta name="twitter:title" content="Aldory Waltrick · Consultor de Dados e Power BI em Itajaí, SC">
   <meta name="twitter:image" content="https://luizzwaltrick.github.io/assets/og.jpg">
   <meta name="theme-color" content="#0b1020">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -29,6 +32,44 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/report.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfessionalService",
+        "@id": "https://luizzwaltrick.github.io/#negocio",
+        "name": "Aldory Waltrick · Dados e BI",
+        "description": "Consultoria em dados e BI em Itajaí e Balneário Camboriú (SC) e remoto: dashboards em Power BI, pipelines em Python e SQL, automação e IA generativa.",
+        "url": "https://luizzwaltrick.github.io/",
+        "image": "https://luizzwaltrick.github.io/assets/og.jpg",
+        "logo": "https://luizzwaltrick.github.io/brand/png/aw-icon-512.png",
+        "telephone": "+55 47 99178-7079",
+        "address": { "@type": "PostalAddress", "addressLocality": "Itajaí", "addressRegion": "SC", "addressCountry": "BR" },
+        "areaServed": [
+          { "@type": "City", "name": "Itajaí" },
+          { "@type": "City", "name": "Balneário Camboriú" },
+          { "@type": "City", "name": "Navegantes" },
+          { "@type": "City", "name": "Brusque" },
+          { "@type": "State", "name": "Santa Catarina" },
+          { "@type": "Country", "name": "Brasil" }
+        ],
+        "knowsAbout": ["Power BI", "Business Intelligence", "DAX", "SQL Server", "PostgreSQL", "Python", "Apache Airflow", "Engenharia de dados", "IA generativa"],
+        "founder": { "@id": "https://luizzwaltrick.github.io/#pessoa" },
+        "sameAs": ["https://www.linkedin.com/in/luizzwaltrick/", "https://github.com/luizzwaltrick"]
+      },
+      {
+        "@type": "Person",
+        "@id": "https://luizzwaltrick.github.io/#pessoa",
+        "name": "Aldory Waltrick",
+        "jobTitle": "Analista de Dados e Consultor de BI",
+        "address": { "@type": "PostalAddress", "addressLocality": "Itajaí", "addressRegion": "SC", "addressCountry": "BR" },
+        "url": "https://luizzwaltrick.github.io/",
+        "sameAs": ["https://www.linkedin.com/in/luizzwaltrick/", "https://github.com/luizzwaltrick"]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <div class="progress" id="progress" aria-hidden="true"></div>
@@ -40,10 +81,8 @@
       </button>
       <nav id="nav-links" class="nav__links">
         <a href="#servicos">Serviços</a>
-        <a href="#como-trabalho">Como trabalho</a>
         <a href="#cases">Cases</a>
         <a href="#bis">BIs</a>
-        <a href="#projetos">Projetos</a>
         <a href="#experiencia">Experiência</a>
         <a href="#contato" class="btn btn--small">Contato</a>
       </nav>
@@ -60,15 +99,14 @@
       <div class="hero__orb hero__orb--b" aria-hidden="true"></div>
       <div class="container hero__inner">
         <div class="hero__text reveal">
-          <p class="status"><span class="dot"></span><span><span data-bind="availability"></span> · <span data-bind="location"></span></span></p>
+          <p class="status"><span class="dot"></span><span><span data-bind="availability"></span> · <span data-bind="location">Itajaí, SC</span></span></p>
           <h1><span class="split" data-bind="name"></span><br><span class="grad grad--anim" data-bind="role"></span></h1>
           <p class="hero__typed mono" aria-live="polite"><span class="hero__prompt">$</span> <span id="typed"></span><span class="caret" aria-hidden="true"></span></p>
           <p class="hero__lead" data-bind="headline"></p>
+          <p class="hero__area">Atendo Itajaí, Balneário Camboriú e região, e empresas de todo o Brasil de forma remota.</p>
           <div class="hero__cta">
             <a href="#bis" class="btn">Ver dashboards</a>
             <a href="#contato" class="btn btn--ghost" id="hero-contact">Falar comigo</a>
-            <a href="#" class="btn btn--ghost" id="hero-cv" download aria-label="Baixar CV" title="Baixar CV">CV</a>
-            <a href="#" class="btn btn--ghost btn--icon" id="hero-linkedin" target="_blank" rel="noopener" aria-label="LinkedIn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zM4 2a2 2 0 110 4 2 2 0 010-4z"/></svg></a>
           </div>
           <ul class="hero__stats" id="hero-stats"></ul>
         </div>
@@ -100,48 +138,27 @@
 
     <div class="marquee" id="marquee" aria-label="Tecnologias que uso"></div>
 
-    <!-- SOBRE -->
-    <section class="section" id="sobre">
-      <div class="container about">
-        <div class="section__head">
-          <p class="kicker reveal"><span class="kicker__n">01</span><span class="kicker__line"></span>Sobre</p>
-          <h2 class="split-title">Dados de ponta a ponta</h2>
-        </div>
-        <div class="about__text reveal" id="about-text"></div>
-      </div>
-    </section>
 
     <!-- SERVIÇOS -->
     <section class="section section--alt" id="servicos">
       <div class="fx fx--code fx--right" data-fx="code" data-lang="python" aria-hidden="true"></div>
       <div class="container">
         <div class="section__head">
-          <p class="kicker reveal"><span class="kicker__n">02</span><span class="kicker__line"></span>Serviços</p>
+          <p class="kicker reveal"><span class="kicker__n">01</span><span class="kicker__line"></span>Serviços</p>
           <h2 class="split-title">Como posso ajudar</h2>
           <p class="section__sub">Atendo empresas em projetos fechados e em consultoria contínua. O foco é dados e BI e, quando o projeto pede, também cuido da infraestrutura e da publicação.</p>
         </div>
         <div class="grid grid--3" id="services"></div>
-      </div>
-    </section>
-
-    <!-- COMO TRABALHO -->
-    <section class="section" id="como-trabalho">
-      <div class="container">
-        <div class="section__head">
-          <p class="kicker reveal"><span class="kicker__n">03</span><span class="kicker__line"></span>Como trabalho</p>
-          <h2 class="split-title">Do diagnóstico à entrega</h2>
-          <p class="section__sub">Um processo simples e transparente, do primeiro contato até o time usando a solução no dia a dia.</p>
-        </div>
-        <ol class="steps" id="steps"></ol>
         <div class="models" id="models"></div>
       </div>
     </section>
+
 
     <!-- CASES -->
     <section class="section section--alt" id="cases">
       <div class="container">
         <div class="section__head">
-          <p class="kicker reveal"><span class="kicker__n">04</span><span class="kicker__line"></span>Cases</p>
+          <p class="kicker reveal"><span class="kicker__n">02</span><span class="kicker__line"></span>Cases</p>
           <h2 class="split-title">Resultados que entreguei</h2>
           <p class="section__sub">Alguns problemas reais que resolvi, o que foi feito e o que mudou depois.</p>
         </div>
@@ -154,7 +171,7 @@
       <div class="fx fx--bi fx--right" data-fx="bi" aria-hidden="true"></div>
       <div class="container">
         <div class="section__head">
-          <p class="kicker reveal"><span class="kicker__n">05</span><span class="kicker__line"></span>Dashboards</p>
+          <p class="kicker reveal"><span class="kicker__n">03</span><span class="kicker__line"></span>Dashboards</p>
           <h2 class="split-title">BIs de demonstração</h2>
           <p class="section__sub">Estes painéis seguem o mesmo padrão dos BIs que construo no trabalho. Passe o mouse para ver a apresentação e clique para abrir o relatório completo, com filtros, cross-filter e exportação. Os números são fictícios.</p>
         </div>
@@ -163,47 +180,25 @@
       </div>
     </section>
 
-    <!-- PROJETOS -->
-    <section class="section section--alt" id="projetos">
-      <div class="fx fx--code fx--right" data-fx="code" data-lang="sql" aria-hidden="true"></div>
-      <div class="container">
-        <div class="section__head">
-          <p class="kicker reveal"><span class="kicker__n">06</span><span class="kicker__line"></span>Projetos</p>
-          <h2 class="split-title">Projetos e entregas</h2>
-        </div>
-        <div class="grid grid--2" id="projects"></div>
-      </div>
-    </section>
 
     <!-- EXPERIÊNCIA -->
     <section class="section" id="experiencia">
       <div class="container">
         <div class="section__head">
-          <p class="kicker reveal"><span class="kicker__n">07</span><span class="kicker__line"></span>Experiência</p>
+          <p class="kicker reveal"><span class="kicker__n">04</span><span class="kicker__line"></span>Experiência</p>
           <h2 class="split-title">Onde trabalhei</h2>
         </div>
         <ol class="timeline" id="experience"></ol>
       </div>
     </section>
 
-    <!-- STACK -->
-    <section class="section section--alt" id="stack">
-      <div class="fx fx--bi fx--right fx--small" data-fx="bi" aria-hidden="true"></div>
-      <div class="container">
-        <div class="section__head">
-          <p class="kicker reveal"><span class="kicker__n">08</span><span class="kicker__line"></span>Stack</p>
-          <h2 class="split-title">Ferramentas</h2>
-        </div>
-        <div class="grid grid--4" id="stack-list"></div>
-      </div>
-    </section>
 
     <!-- CONTATO -->
     <section class="section contact" id="contato">
       <div class="fx fx--code fx--left" data-fx="code" data-lang="dax" aria-hidden="true"></div>
       <div class="container contact__inner">
         <div class="section__head section__head--center">
-          <p class="kicker reveal"><span class="kicker__n">09</span><span class="kicker__line"></span>Contato</p>
+          <p class="kicker reveal"><span class="kicker__n">05</span><span class="kicker__line"></span>Contato</p>
           <h2 class="split-title">Vamos conversar</h2>
           <p class="section__sub">Para projetos, consultoria ou uma conversa sobre o cenário de dados da sua empresa, me chame no WhatsApp ou no LinkedIn.</p>
         </div>
@@ -214,7 +209,7 @@
 
   <footer class="footer">
     <div class="container footer__inner">
-      <span>© <span id="year"></span> <span data-bind="name"></span></span>
+      <span>© <span id="year"></span> <span data-bind="name"></span> · Consultoria em dados e Power BI · Itajaí, SC</span>
       <a href="#top" class="footer__top">Voltar ao topo ↑</a>
     </div>
   </footer>
